@@ -5,15 +5,21 @@
         public Piece AddPiece(int column, int row)
         {
             // TODO!
-            var piece = new Piece();
+            var piece = new Piece(column, row);
             return piece;
         }
     }
 
     public class Piece
     {
-        public int Row { get; set; }
-        public int Column { get; set; }
+        public int Row { get; private set; }
+        public int Column { get; private set; }
+
+        public Piece(int column, int row)
+        {
+            Column = column;
+            Row = row;
+        }
 
         public void MoveUpRight()
         {
@@ -23,6 +29,9 @@
 
         public void MoveUpLeft()
         {
+            if (Column == 0)
+                throw new IllegalMoveException();
+
             Row = 1;
             Column = 6;
         }

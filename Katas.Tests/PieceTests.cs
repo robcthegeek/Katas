@@ -4,8 +4,16 @@ using NUnit.Framework;
 namespace Katas.Tests
 {
     [TestFixture]
-    public class CheckerTests
+    public class PieceTests
     {
+        [Test]
+        public void Ctor_ColumnIsOutsideBounds_ThrowsInvalidLocationException()
+        {
+            // Board is 8x8 grid!
+            Assert.Throws<InvalidLocationException>(
+                () => new Piece(9, 0));
+        }
+
         [Test]
         public void MoveUpRight_InBottomLeft_EndsInR1C1()
         {
@@ -36,11 +44,8 @@ namespace Katas.Tests
             var board = new Board();
             var piece = board.AddPiece(0, 0);
 
-            piece.MoveUpLeft();
-
-            Assert.Throws<IllegalMoveException>(() => piece.MoveUpLeft());
-
+            Assert.Throws<IllegalMoveException>(
+                () => piece.MoveUpLeft());
         }
-
     }
 }

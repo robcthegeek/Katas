@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IllegalMoveException.cs" />
+    <Compile Include="InvalidLocationException.cs" />
     <Compile Include="Model\Game.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
