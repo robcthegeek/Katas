@@ -1,5 +1,7 @@
 # Draughts / Checkers Kata
 
+> From: https://github.com/davidwhitney/CodeDojos/tree/master/Draughts
+
 :warning: **WIP!**
 
 
