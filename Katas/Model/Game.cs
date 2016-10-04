@@ -4,25 +4,26 @@ namespace Katas.Model
 {
     public class Board
     {
-        public Piece AddPiece(int i, int i1)
+        public Piece AddPiece(int column, int row)
         {
-            throw new NotImplementedException();
+            // TODO!
+            var piece = new Piece();
+            return piece;
         }
     }
 
     public class Piece
     {
-        public void MoveUp()
+        public int Row { get; set; }
+        public int Column { get; set; }
+
+        public void MoveUpRight()
         {
-            throw new NotImplementedException();
+            Row = 1;
+            Column = 1;
         }
 
-        public void Column()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Row()
+        public void MoveUpLeft()
         {
             throw new NotImplementedException();
         }

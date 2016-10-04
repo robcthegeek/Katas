@@ -7,16 +7,27 @@ namespace Katas.Tests
     public class CheckerTests
     {
         [Test]
-        public void CanMoveOneSteps()
+        public void MoveUpRight_InBottomLeft_EndsInR1C1()
         {
             var board = new Board();
             var piece = board.AddPiece(0, 0);
 
-            piece.MoveUp();
+            piece.MoveUpRight();
 
             Assert.That(piece.Column, Is.EqualTo(1));
             Assert.That(piece.Row, Is.EqualTo(1));
+        }
 
+        [Test]
+        public void MoveUpLeft_InBottomRight_EndsInR1C1()
+        {
+            var board = new Board();
+            var piece = board.AddPiece(7, 0);
+
+            piece.MoveUpLeft();
+
+            Assert.That(piece.Column, Is.EqualTo(6));
+            Assert.That(piece.Row, Is.EqualTo(1));
         }
 
     }
