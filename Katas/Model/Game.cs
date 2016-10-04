@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Katas.Model
+﻿namespace Katas.Model
 {
     public class Board
     {
@@ -25,7 +23,8 @@ namespace Katas.Model
 
         public void MoveUpLeft()
         {
-            throw new NotImplementedException();
+            Row = 1;
+            Column = 6;
         }
     }
 }

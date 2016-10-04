@@ -30,5 +30,17 @@ namespace Katas.Tests
             Assert.That(piece.Row, Is.EqualTo(1));
         }
 
+        [Test]
+        public void MoveUpLeft_ThrowsException_If_We_are_in_bottomleft()
+        {
+            var board = new Board();
+            var piece = board.AddPiece(0, 0);
+
+            piece.MoveUpLeft();
+
+            Assert.Throws<IllegalMoveException>(() => piece.MoveUpLeft());
+
+        }
+
     }
 }
