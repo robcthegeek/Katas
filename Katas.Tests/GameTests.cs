@@ -1,4 +1,5 @@
-﻿using NSubstitute;
+﻿using System;
+using NSubstitute;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
 
@@ -30,7 +31,14 @@ namespace Katas.Tests
             var player2 = includeP2 ? Fixture.Create<Player>() : null;
 
             Assert.Throws<MissingPlayerException>(
-                () => new Game(player1, player2));
+                () => new Game(player1, player2, _coinFlipper));
+        }
+
+        [Test]
+        public void Ctor_NullFlipper_ThrowsArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(
+                () => new Game(_player1, _player2, null));
         }
 
         [Test]
@@ -54,14 +62,38 @@ namespace Katas.Tests
             Assert.That(_game.BlackPlayer, Is.Null);
         }
 
-        [Test]
-        public void Start_CoinFlipsHeads_SetsPlayer1ToBlack()
+        [TestCase(CoinSide.Heads, true)]
+        [TestCase(CoinSide.Tails, false)]
+        public void Start_CoinFlips_SetsPlayersBasedOnHeadsTails(CoinSide flip, bool player1Wins)
         {
-            _coinFlipper.Flip().Returns(CoinSide.Heads);
+            // Heads - Player 1 Wins, Tails - Player 2
+            _coinFlipper.Flip().Returns(flip);
+
+            var expectedBlack = player1Wins ? _player1 : _player2;
+            var expectedWhite = player1Wins ? _player2 : _player1;
 
             _game.Start();
 
-            Assert.That(_game.BlackPlayer, Is.SameAs(_player1));
+            Assert.That(_game.BlackPlayer, Is.SameAs(expectedBlack));
+            Assert.That(_game.WhitePlayer, Is.SameAs(expectedWhite));
+        }
+
+        [Test]
+        public void Start_CoinFlipped_SetsStatusToPlaying()
+        {
+            _game.Start();
+
+            Assert.That(_game.Status, Is.EqualTo(GameStatus.Playing));
+        }
+
+        [Test]
+        public void Start_CoinFlipped_SetsNextPlayerToBlackPlayer()
+        {
+            _game.Start();
+
+            var expected = _game.BlackPlayer;
+
+            Assert.That(_game.NextPlayer, Is.SameAs(expected));
         }
     }
 }
