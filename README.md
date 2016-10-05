@@ -9,6 +9,9 @@
     - [x] Board (8x8)
     - [x] `Start` (Sets Players to Colours)
 - [ ] Flesh Out Models
-    - [ ] Player Name
-    - [ ] Board Size/Colours
+    - [x] Player Name
+    - [x] Board Size
+    - [ ] Square Colours
 
+
+- _May need to read up on "[Chess notation](https://en.wikipedia.org/wiki/Chess_notation)" to make it easier to reference squares on the board._
