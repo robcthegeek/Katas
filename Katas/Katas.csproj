@@ -46,6 +46,8 @@
     <Compile Include="GameStatus.cs" />
     <Compile Include="ICoinFlipper.cs" />
     <Compile Include="MissingPlayerException.cs" />
+    <Compile Include="Piece.cs" />
+    <Compile Include="PieceColor.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
