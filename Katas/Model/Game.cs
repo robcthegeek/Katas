@@ -33,7 +33,7 @@ namespace Katas.Model
 
         public void Reset()
         {
-
+            Board.Reset();
         }
     }
 }

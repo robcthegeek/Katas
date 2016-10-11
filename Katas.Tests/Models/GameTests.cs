@@ -67,9 +67,11 @@ namespace Katas.Tests.Models
         }
 
         [Test]
-        public void It_Should_Return_The_Same_Square_In_Each_Call_ForLocation1()
+        public void Reset_RequestSameLocationTwice_ReturnsSamePiece()
         {
             var game = new Game();
+
+            game.Reset();
 
             var square1 = game.Board.Square(1);
             var square1Again = game.Board.Square(1);

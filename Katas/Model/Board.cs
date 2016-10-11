@@ -1,22 +1,39 @@
-﻿namespace Katas.Model
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace Katas.Model
 {
     public class Board
     {
-        public Piece AddPiece(int column, int row)
+        public IList<Square> Squares { get; private set; }
+
+        public Board()
         {
-            // TODO!
-            var piece = new Piece(PieceColor.Black);
-            return piece;
+            Squares = new List<Square>(32);
         }
 
+        /// <summary>
+        /// Returns the <see cref="Square"/> at the given location.
+        /// NOTE: Locations are base-1 (from 1 to 32).
+        /// </summary>
         public Square Square(int location)
         {
-            if (location < 13)
-                return new Square { Piece = new Piece(PieceColor.Black) };
-            if (location > 20)
-                return new Square { Piece = new Piece(PieceColor.White) };
+            return Squares[location - 1];
+        }
 
-            return new Square();
+        public void Reset()
+        {
+            Squares = Enumerable.Range(0, 32)
+                .Select(i =>
+                {
+                    if (i < 13)
+                        return new Square { Piece = new Piece(PieceColor.Black) };
+                    if (i > 20)
+                        return new Square {Piece = new Piece(PieceColor.White)};
+
+                    return new Square();
+                })
+                .ToList();
         }
     }
 }
