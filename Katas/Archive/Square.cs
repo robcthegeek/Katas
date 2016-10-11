@@ -2,6 +2,6 @@
 {
     public class Square
     {
-        public int Piece { get; set; }
+        public Piece Piece { get; set; }
     }
 }

@@ -13,5 +13,13 @@ namespace Katas.Tests.Models
             Assert.That(game.WhitePlayer, Is.Not.Null);
             Assert.That(game.BlackPlayer, Is.Not.Null);
         }
+
+        [Test]
+        public void Ctor_NoParams_CreateBlackAndWhitePieces()
+        {
+            var game = new Game();
+
+            Assert.That(game.Pieces, Is.Not.Null);
+        }
     }
 }
