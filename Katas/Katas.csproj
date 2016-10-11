@@ -40,6 +40,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Archive\Board.cs" />
+    <Compile Include="Archive\Game.cs" />
+    <Compile Include="Archive\Piece.cs" />
+    <Compile Include="Archive\Player.cs" />
+    <Compile Include="Archive\Square.cs" />
     <Compile Include="IllegalMoveException.cs" />
     <Compile Include="InvalidLocationException.cs" />
     <Compile Include="Model\Game.cs" />
