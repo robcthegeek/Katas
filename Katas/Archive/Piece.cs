@@ -1,4 +1,6 @@
-﻿namespace Katas.Archive
+﻿using Katas.Model;
+
+namespace Katas.Archive
 {
     public class Piece
     {
@@ -16,11 +18,5 @@
     {
         On,
         Off
-    }
-
-    public enum PieceColor
-    {
-        White,
-        Black
     }
 }

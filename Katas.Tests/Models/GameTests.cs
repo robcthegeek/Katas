@@ -1,4 +1,5 @@
-﻿using Katas.Model;
+﻿using System.Linq;
+using Katas.Model;
 using NUnit.Framework;
 
 namespace Katas.Tests.Models
@@ -19,7 +20,18 @@ namespace Katas.Tests.Models
         {
             var game = new Game();
 
-            Assert.That(game.Pieces, Is.Not.Null);
+            Assert.That(game.Pieces.Count(x => x.Color == PieceColor.White), Is.EqualTo(12));
+            Assert.That(game.Pieces.Count(x => x.Color == PieceColor.Black), Is.EqualTo(12));
+        }
+
+        [Test]
+        public void Reset_NoParams_PutsBlackPieceInPlace1()
+        {
+            var game = new Game();
+
+            game.Reset();
+
+            Assert.That(game.Board.Square(1).Piece.Color, Is.EqualTo(PieceColor.Black));
         }
     }
 }
