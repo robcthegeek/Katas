@@ -11,7 +11,10 @@
 
         public Square Square(int location)
         {
-            return new Square { Piece = new Piece(PieceColor.Black) };
+            if (location < 13)
+                return new Square { Piece = new Piece(PieceColor.Black) };
+            else
+                return new Square { Piece = new Piece(PieceColor.White) };
         }
     }
 }

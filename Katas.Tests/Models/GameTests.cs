@@ -1,4 +1,5 @@
-﻿using Katas.Model;
+﻿using System.Collections.Generic;
+using Katas.Model;
 using NUnit.Framework;
 using System.Linq;
 
@@ -42,6 +43,27 @@ namespace Katas.Tests.Models
             game.Reset();
 
             Assert.That(game.Board.Square(32).Piece.Color, Is.EqualTo(PieceColor.White));
+        }
+
+        [Test]
+        public void Reset_CheckAll32Locations_Returns24Pieces()
+        {
+            var game = new Game();
+
+            game.Reset();
+
+            var pieces = new List<Piece>();
+
+            for (int i = 1; i < 33; i++)
+            {
+                var square = game.Board.Square(i);
+                if (square.Piece != null)
+                {
+                    pieces.Add(square.Piece);
+                }
+            }
+
+            Assert.That(pieces.Count, Is.EqualTo(24));
         }
     }
 }
