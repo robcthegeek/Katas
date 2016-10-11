@@ -1,4 +1,4 @@
-namespace Katas.Model
+﻿namespace Katas.Model
 {
     public class Board
     {
