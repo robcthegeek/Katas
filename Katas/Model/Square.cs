@@ -2,6 +2,6 @@
 {
     public class Square
     {
-        public Archive.Piece Piece { get; set; }
+        public Piece Piece { get; set; }
     }
 }

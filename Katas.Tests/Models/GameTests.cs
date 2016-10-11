@@ -1,6 +1,6 @@
-﻿using System.Linq;
-using Katas.Model;
+﻿using Katas.Model;
 using NUnit.Framework;
+using System.Linq;
 
 namespace Katas.Tests.Models
 {
@@ -32,6 +32,16 @@ namespace Katas.Tests.Models
             game.Reset();
 
             Assert.That(game.Board.Square(1).Piece.Color, Is.EqualTo(PieceColor.Black));
+        }
+
+        [Test]
+        public void Reset_NoParams_PutswhitePieceInPlace32()
+        {
+            var game = new Game();
+
+            game.Reset();
+
+            Assert.That(game.Board.Square(32).Piece.Color, Is.EqualTo(PieceColor.White));
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using Katas.Archive;
-
-namespace Katas.Model
+﻿namespace Katas.Model
 {
     public class Board
     {
@@ -13,7 +11,7 @@ namespace Katas.Model
 
         public Square Square(int location)
         {
-            throw new System.NotImplementedException();
+            return new Square { Piece = new Piece(PieceColor.Black) };
         }
     }
 }

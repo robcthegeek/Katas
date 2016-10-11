@@ -26,11 +26,14 @@ namespace Katas.Model
             Pieces = Enumerable.Range(0, 24)
                 .Select(i => new Piece((i % 2 == 0 ? PieceColor.Black : PieceColor.White)))
                 .ToList();
+
+            Board = new Board();
+
         }
 
         public void Reset()
         {
-            throw new System.NotImplementedException();
+
         }
     }
 }
