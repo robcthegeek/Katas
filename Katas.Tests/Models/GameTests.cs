@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using Katas.Model;
+﻿using Katas.Model;
 using NUnit.Framework;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Katas.Tests.Models
@@ -65,5 +65,18 @@ namespace Katas.Tests.Models
 
             Assert.That(pieces.Count, Is.EqualTo(24));
         }
+
+        [Test]
+        public void It_Should_Return_The_Same_Square_In_Each_Call_ForLocation1()
+        {
+            var game = new Game();
+
+            var square1 = game.Board.Square(1);
+            var square1Again = game.Board.Square(1);
+
+
+            Assert.That(square1, Is.SameAs(square1Again));
+        }
+
     }
 }

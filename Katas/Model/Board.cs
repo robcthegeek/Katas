@@ -13,8 +13,10 @@
         {
             if (location < 13)
                 return new Square { Piece = new Piece(PieceColor.Black) };
-            else
+            if (location > 20)
                 return new Square { Piece = new Piece(PieceColor.White) };
+
+            return new Square();
         }
     }
 }
