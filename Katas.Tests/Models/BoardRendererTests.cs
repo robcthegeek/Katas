@@ -38,5 +38,7 @@ namespace Katas.Tests.Models
             Assert.That(squares, Is.EqualTo(expected));
         }
 
+        // TODO (RC): Actually start rendering the pieces from the board!
+        // Remember that the Board only tracks pieces on Black places!
     }
 }
