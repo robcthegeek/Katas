@@ -1,4 +1,5 @@
-﻿using Katas.Model;
+﻿using System;
+using Katas.Model;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
@@ -76,9 +77,16 @@ namespace Katas.Tests.Models
             var square1 = game.Board.Square(1);
             var square1Again = game.Board.Square(1);
 
-
             Assert.That(square1, Is.SameAs(square1Again));
         }
 
+        [Test]
+        public void Start_PlayerOneIsNull_ThrowsArgumentNullException()
+        {
+            var game = new Game();
+
+            Assert.Throws<ArgumentNullException>(
+                () => game.Start(null, new Player()));
+        }
     }
 }

@@ -35,5 +35,10 @@ namespace Katas.Model
         {
             Board.Reset();
         }
+
+        public void Start(Player player1, Player player2)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
