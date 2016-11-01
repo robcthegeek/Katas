@@ -24,16 +24,16 @@ namespace Katas.Model
         public void Reset()
         {
             Squares = Enumerable.Range(0, 32)
-                .Select(i =>
-                {
-                    if (i < 13)
-                        return new Square { Piece = new Piece(PieceColor.Black) };
-                    if (i > 20)
-                        return new Square {Piece = new Piece(PieceColor.White)};
+                                .Select(i =>
+                                {
+                                    if (i < 12)
+                                        return new Square { Piece = new Piece(PieceColor.Black) };
+                                    if (i > 19)
+                                        return new Square { Piece = new Piece(PieceColor.White) };
 
-                    return new Square();
-                })
-                .ToList();
+                                    return new Square();
+                                })
+                                .ToList();
         }
     }
 }

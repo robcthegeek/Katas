@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Katas.Model;
+﻿using Katas.Model;
 using NUnit.Framework;
+using System;
 
 namespace Katas.Tests.Models
 {
@@ -14,8 +10,7 @@ namespace Katas.Tests.Models
         [Test]
         public void Ctor_NullBoard_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(
-                () => new BoardRenderer(null));
+            Assert.Throws<ArgumentNullException>(() => new BoardRenderer(null));
         }
 
         [Test]
@@ -38,7 +33,28 @@ namespace Katas.Tests.Models
             Assert.That(squares, Is.EqualTo(expected));
         }
 
-        // TODO (RC): Actually start rendering the pieces from the board!
-        // Remember that the Board only tracks pieces on Black places!
+        [Test]
+        public void Render_ANewBoard_MapBoardSquares()
+        {
+            var board = new Board();
+            board.Reset();
+
+            var boardRenderer = new BoardRenderer(board);
+
+            var expected =
+               "○▓○▓○▓○▓" + Environment.NewLine +
+               "▓○▓○▓○▓○" + Environment.NewLine +
+               "○▓○▓○▓○▓" + Environment.NewLine +
+               "▓▒▓▒▓▒▓▒" + Environment.NewLine +
+               "▒▓▒▓▒▓▒▓" + Environment.NewLine +
+               "▓●▓●▓●▓●" + Environment.NewLine +
+               "●▓●▓●▓●▓" + Environment.NewLine +
+               "▓●▓●▓●▓●";
+
+            var squares = boardRenderer.Render();
+
+            Assert.That(squares, Is.EqualTo(expected));
+        }
+
     }
 }
