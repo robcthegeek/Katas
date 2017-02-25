@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Katas
 {
@@ -22,6 +23,7 @@ namespace Katas
 
         public Action NextMove()
         {
+            // TODO (RC): First Up - Limited Set of Moves I Can Make - i.e. Currently Owned
 
             // TODO (RC): Strategy? KILL vs. CAPTURE?
             // <= Troops than enemy? CAPTURE
@@ -34,6 +36,13 @@ namespace Katas
             // Troop Count on Arrival (Turns Required * Target Production)
             // Expected Losses (Availability - (Troops on Arrival + Troops Inbound)
 
+            // TODO (RC): Risk - Ability for Enemy Player to Attack
+
+            // TODO (RC): Balance of Power - Power Shift over Turns >> Move Results
+            // Want maximum return over shortest turns
+
+            // TODO (RC): Growth ability - capturing nodes with more links = better growth.
+
 
             // TODO (RC): Find Quickest Move that Captures Most Production w/ Least Losses
 
@@ -43,8 +52,37 @@ namespace Katas
         }
     }
 
+    public class GameState
+    {
+        public IList<FactoryLink> Links { get; private set; }
+        public IList<Entity> Entities { get; private set; }
+        public IList<Factory> Factories { get; private set; }
+        public IList<Troop> Troops { get; private set; }
+
+        public GameState(IList<FactoryLink> links, IList<Entity> entities)
+        {
+            Links = links;
+            Entities = entities;
+            Factories = entities.OfType<Factory>().ToList();
+            Troops = entities.OfType<Troop>().ToList();
+        }
+    }
+
     public abstract class Entity
     {
+        public int Id { get; private set; }
+        public int Owner { get; private set; }
+
+        protected Entity(int id, int owner)
+        {
+            Id = id;
+            Owner = owner;
+        }
+
+        protected Entity(int id, Owner owner) : this(id, (int)owner)
+        {
+        }
+
         public static Entity Create(int id, string type, int arg1, int arg2, int arg3, int arg4, int arg5)
         {
             if (type == "FACTORY")
@@ -63,40 +101,38 @@ namespace Katas
 
     public class Troop : Entity
     {
-        public int Id { get; private set; }
-        public int Owner { get; private set; }
         public int SourceFactoryId { get; private set; }
         public int TargetFactoryId { get; private set; }
         public int Headcount { get; private set; }
         public int TurnsRemaining { get; private set; }
 
-        public Troop(int id, int owner, int sourceFactoryId, int targetFactoryId, int headcount, int turnsRemaining)
+        public Troop(int id, int owner, int sourceFactoryId, int targetFactoryId, int headcount, int turnsRemaining) : base(id, owner)
         {
-            Id = id;
-            Owner = owner;
             SourceFactoryId = sourceFactoryId;
             TargetFactoryId = targetFactoryId;
             Headcount = headcount;
             TurnsRemaining = turnsRemaining;
         }
+
+        public Troop(int id, Owner owner, int sourceFactoryId, int targetFactoryId, int headcount, int turnsRemaining)
+            : this(id, (int)owner, sourceFactoryId, targetFactoryId, headcount, turnsRemaining)
+        {
+        }
     }
     public class Factory : Entity
     {
-        public int Id { get; private set; }
-        public int Owner { get; private set; }
         public int Cyborgs { get; private set; }
         public int Production { get; private set; }
 
         public Factory(int id, int owner, int cyborgs, int production)
+            : base(id, owner)
         {
-            Id = id;
-            Owner = owner;
             Cyborgs = cyborgs;
             Production = production;
         }
 
-        public Factory(int id, Owner owner, int cyborgs, int production) :
-            this (id, (int)owner, cyborgs, production)
+        public Factory(int id, Owner owner, int cyborgs, int production)
+            : this (id, (int)owner, cyborgs, production)
         {
 
         }
