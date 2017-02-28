@@ -15,9 +15,8 @@ namespace Katas.Tests
             var t1 = new Troop(3, Owner.Player, 1, 2, 1, 1);
             var t2 = new Troop(4, Owner.Enemy, 2, 1, 1, 1);
 
-            var state = new GameState(
-                new List<FactoryLink> { l1 },
-                new List<Entity> { f1, f2, t1, t2 });
+            var state = new GameState(new List<FactoryLink> { l1 });
+            state.AddEntities(f1, f2, t1, t2);
 
             var factories = state.Factories;
 
@@ -35,9 +34,8 @@ namespace Katas.Tests
             var t1 = new Troop(3, Owner.Player, 1, 2, 1, 1);
             var t2 = new Troop(4, Owner.Enemy, 2, 1, 1, 1);
 
-            var state = new GameState(
-                new List<FactoryLink> { l1 },
-                new List<Entity> { f1, f2, t1, t2 });
+            var state = new GameState(new List<FactoryLink> { l1 });
+            state.AddEntities(f1, f2, t1, t2);
 
             var troops = state.Troops;
 
@@ -54,9 +52,8 @@ namespace Katas.Tests
             var f1 = new Factory(1, Owner.Player, 5, 3);
             var f2 = new Factory(2, Owner.Enemy, 5, 3);
 
-            var state = new GameState(
-                new List<FactoryLink> { l1 },
-                new List<Entity> { f1, f2 });
+            var state = new GameState(new List<FactoryLink> { l1 });
+            state.AddEntities(f1, f2);
 
             var actions = state.PossibleActions();
 
@@ -70,9 +67,8 @@ namespace Katas.Tests
             var f1 = new Factory(1, Owner.Player, 5, 3);
             var f2 = new Factory(2, Owner.Enemy, 5, 3);
 
-            var state = new GameState(
-                new List<FactoryLink> { l1 },
-                new List<Entity> { f1, f2 });
+            var state = new GameState(new List<FactoryLink> { l1 });
+            state.AddEntities(f1, f2);
 
             var actions = state.PossibleActions();
 
@@ -91,9 +87,8 @@ namespace Katas.Tests
             var f2 = new Factory(2, Owner.Enemy, 5, 3);
             var f3 = new Factory(3, Owner.Enemy, 5, 3);
 
-            var state = new GameState(
-                new List<FactoryLink> { l1, l2 },
-                new List<Entity> { f1, f2, f3 });
+            var state = new GameState(new List<FactoryLink> { l1, l2 });
+            state.AddEntities(f1, f2, f3);
 
             var actions = state.PossibleActions();
 
@@ -106,12 +101,5 @@ namespace Katas.Tests
             Assert.That(moves.SingleOrDefault(x => x.Source == 1 && x.Destination == 2), Is.Not.Null);
             Assert.That(moves.SingleOrDefault(x => x.Source == 1 && x.Destination == 3), Is.Not.Null);
         }
-
-
-
-
-        // TODO (RC): GameState - Balance of Power
-
-        // TODO (RC): Projection - Move vs. GameState = Power Shift
     }
 }

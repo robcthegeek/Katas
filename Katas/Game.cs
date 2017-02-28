@@ -1,77 +1,110 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Katas
 {
     public class Game
     {
+        private GameState _state;
+
         public int FactoryCount { get; private set; }
         public int LinkCount { get; private set; }
-        public IEnumerable<FactoryLink> Links { get; private set; }
+        public IList<FactoryLink> Links { get; private set; }
 
-        public Game(int factoryCount, int linkCount, IEnumerable<FactoryLink> links)
+        public Game(int factoryCount, int linkCount)
         {
             FactoryCount = factoryCount;
             LinkCount = linkCount;
-            Links = links;
+            Links = new List<FactoryLink>();
         }
 
-        public void SetState(IEnumerable<Entity> entities)
+        public void AddLink(int factory1, int factory2, int distance)
         {
+            Links.Add(new FactoryLink(factory1, factory2, distance));
+        }
 
+        public void StartTurn()
+        {
+            _state = new GameState(Links);
+        }
+
+        public void AddEntity(int id, string type, int arg1, int arg2, int arg3, int arg4, int arg5)
+        {
+            _state.Entities.Add(Factory.Create(id, type, arg1, arg2, arg3, arg4, arg5));
         }
 
         public Action NextMove()
         {
-            // TODO (RC): First Up - Limited Set of Moves I Can Make - i.e. Currently Owned
+            var machine = new WarMachine(_state);
+            return machine.NextMove();
+        }
+    }
 
-            // TODO (RC): Strategy? KILL vs. CAPTURE?
-            // <= Troops than enemy? CAPTURE
-            // > Troops than enemy? KILL
+    public class WarMachine
+    {
+        private readonly GameState _state;
 
-            // TODO (RC): Determine Possible Options for moves (Player Owned > Links > Bases)
-            // Each Option will have:
-            // Source / Target Factories
-            // Turns Required
-            // Troop Count on Arrival (Turns Required * Target Production)
-            // Expected Losses (Availability - (Troops on Arrival + Troops Inbound)
+        public WarMachine(GameState state)
+        {
+            _state = state;
+        }
 
-            // TODO (RC): Risk - Ability for Enemy Player to Attack
+        public Action NextMove()
+        {
+            // Get Possible Moves
+            var actions = _state.PossibleActions();
 
-            // TODO (RC): Balance of Power - Power Shift over Turns >> Move Results
-            // Want maximum return over shortest turns
+            // Iterate Moves - Determine Move w/ Least Casulties
+            var results = actions
+                .Where(x => x.Action is MoveAction)
+                .Select(x => x.Action as MoveAction)
+                .Select(x =>
+                {
+                    var playerCyborgs = x.CyborgCount;
+                    var enemyCyborgs = _state.Factories.Single(y => y.Id == x.Destination).Cyborgs;
+                    var casulties = playerCyborgs - enemyCyborgs;
 
-            // TODO (RC): Growth ability - capturing nodes with more links = better growth.
+                    return new
+                    {
+                        Casulties = casulties,
+                        Source = x.Source,
+                        Destination = x.Destination,
+                        Cyborgs = x.CyborgCount,
+                        Outgunned = casulties < 0
+                    };
+                })
+                .Where(x => !x.Outgunned)
+                .OrderBy(x => x.Casulties)
+                .First();
 
-
-            // TODO (RC): Find Quickest Move that Captures Most Production w/ Least Losses
-
-            // TODO (RC): Also need to think defense - if there are troops incoming, then we need to weigh up production losses
-
-            return new MoveAction(1, 2, 10);
+            return new MoveAction(results.Source, results.Destination, results.Cyborgs);
         }
     }
 
     public class GameState
     {
         public IList<FactoryLink> Links { get; private set; }
-        public IList<Entity> Entities { get; private set; }
-        public IList<Factory> Factories { get; private set; }
-        public IList<Troop> Troops { get; private set; }
+        public List<Entity> Entities { get; private set; }
+        public IList<Factory> Factories => Entities.OfType<Factory>().ToList();
+        public IList<Troop> Troops => Entities.OfType<Troop>().ToList();
 
-        public GameState(IList<FactoryLink> links, IList<Entity> entities)
+        public GameState(IList<FactoryLink> links)
         {
             Links = links;
-            Entities = entities;
-            Factories = entities.OfType<Factory>().ToList();
-            Troops = entities.OfType<Troop>().ToList();
+            Entities = new List<Entity>();
+        }
+
+        public void AddEntities(params Entity[] entities)
+        {
+            Entities.AddRange(entities);
         }
 
         public List<PossibleAction> PossibleActions()
         {
             // Get All Player-Owned Factories
             var playerOwned = Factories
-                .Where(x => x.Owner == (int) Owner.Player)
+                .Where(x => x.Owner == (int)Owner.Player)
                 .ToDictionary(f => f.Id, f => f);
 
             // Determine Links to/from Factories
@@ -135,7 +168,7 @@ namespace Katas
                 return new Troop(id, arg1, arg2, arg3, arg4, arg5);
             }
 
-            return null;
+            throw new ArgumentOutOfRangeException($"Unexpected entity type '{type}'.");
         }
     }
 
@@ -172,7 +205,7 @@ namespace Katas
         }
 
         public Factory(int id, Owner owner, int cyborgs, int production)
-            : this (id, (int)owner, cyborgs, production)
+            : this(id, (int)owner, cyborgs, production)
         {
 
         }

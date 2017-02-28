@@ -10,25 +10,34 @@ namespace Katas.Tests
 
         // TODO (RC): Ensure Other Turns < 50ms
 
-        [Test]
-        public void NextMove_OnlyTwoFactoriesAndPlayerHasMoreTroops_ReturnsMoveEnemyFactory()
-        {
-            // 2 Factories, 1 Link, 2 Different Players
-            var f1 = new Factory(1, Owner.Player, 10, 5);
-            var f2 = new Factory(2, Owner.Enemy, 1, 5);
+        // TODO (RC): GameState - Balance of Power
 
-            var game = new Game(2, 1, new []
-            {
-                new FactoryLink(1, 2, 5),
-            });
+        // TODO (RC): Projection - Move vs. GameState = Power Shift
 
-            game.SetState(new [] { f1, f2 });
+        // TODO (RC): First Up - Limited Set of Moves I Can Make - i.e. Currently Owned
 
-            var move = (MoveAction)game.NextMove();
+        // TODO (RC): Strategy? KILL vs. CAPTURE?
+        // <= Troops than enemy? CAPTURE
+        // > Troops than enemy? KILL
 
-            Assert.That(move.Source, Is.EqualTo(1));
-            Assert.That(move.Destination, Is.EqualTo(2));
-            Assert.That(move.CyborgCount, Is.EqualTo(10));
-        }
+        // TODO (RC): Determine Possible Options for moves (Player Owned > Links > Bases)
+        // Each Option will have:
+        // Source / Target Factories
+        // Turns Required
+        // Troop Count on Arrival (Turns Required * Target Production)
+        // Expected Losses (Availability - (Troops on Arrival + Troops Inbound)
+
+        // TODO (RC): Risk - Ability for Enemy Player to Attack
+
+        // TODO (RC): Balance of Power - Power Shift over Turns >> Move Results
+        // Want maximum return over shortest turns
+
+        // TODO (RC): Growth ability - capturing nodes with more links = better growth.
+
+
+        // TODO (RC): Find Quickest Move that Captures Most Production w/ Least Losses
+
+        // TODO (RC): Also need to think defense - if there are troops incoming, then we need to weigh up production losses
+
     }
 }
