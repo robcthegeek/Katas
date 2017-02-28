@@ -66,6 +66,46 @@ namespace Katas
             Factories = entities.OfType<Factory>().ToList();
             Troops = entities.OfType<Troop>().ToList();
         }
+
+        public List<PossibleAction> PossibleActions()
+        {
+            // Get All Player-Owned Factories
+            var playerOwned = Factories
+                .Where(x => x.Owner == (int) Owner.Player)
+                .ToDictionary(f => f.Id, f => f);
+
+            // Determine Links to/from Factories
+            var playerLinked = Links
+                .Where(x => playerOwned.ContainsKey(x.Factory1) || playerOwned.ContainsKey(x.Factory2))
+                .ToList();
+
+            // Return Possible Move Actions
+            var moveActions = playerLinked
+                .Select(link =>
+                {
+                    var playerFactoryId = playerOwned.ContainsKey(link.Factory1)
+                        ? link.Factory1
+                        : link.Factory2;
+                    var opponentFactoryId = playerOwned.ContainsKey(link.Factory1)
+                        ? link.Factory2
+                        : link.Factory1;
+                    var factory = playerOwned[playerFactoryId];
+
+                    var move = new MoveAction(playerFactoryId, opponentFactoryId, factory.Cyborgs);
+
+                    return new PossibleAction(move);
+                })
+                .ToList();
+
+            var result = new List<PossibleAction>
+            {
+                new PossibleAction(new WaitAction())
+            };
+
+            result.AddRange(moveActions);
+
+            return result;
+        }
     }
 
     public abstract class Entity
@@ -156,6 +196,16 @@ namespace Katas
             Factory1 = factory1;
             Factory2 = factory2;
             Distance = distance;
+        }
+    }
+
+    public class PossibleAction
+    {
+        public Action Action { get; protected set; }
+
+        public PossibleAction(Action action)
+        {
+            Action = action;
         }
     }
 
