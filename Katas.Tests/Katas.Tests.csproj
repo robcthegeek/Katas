@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutoTestFixture.cs" />
+    <Compile Include="GameStateBuilder.cs" />
     <Compile Include="GameStateTests.cs" />
     <Compile Include="GameTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

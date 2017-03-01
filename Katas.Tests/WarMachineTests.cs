@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using NUnit.Framework;
 
 namespace Katas.Tests
@@ -7,64 +6,62 @@ namespace Katas.Tests
     public class WarMachineTests
     {
         [Test]
-        public void NextMove_OneEnemyWithLessCyborgs_MovesUnitsToEnemyFactory()
+        public void NextActions_OneEnemyWithLessCyborgs_MovesMinimalUnitsToEnemyFactory()
         {
             var state = GameStateBuilder
                 .With
                 .PlayerFactory(1, 5, 3)
-                .EnemyFactory(2, 1, 3)
+                .EnemyFactory(2, 1, 0)
                 .Link(1, 2, 1);
 
             var machine = new WarMachine(state);
 
-            var move = machine.NextMove() as MoveAction;
+            var move = machine.NextActions().Single() as MoveAction;
 
             Assert.That(move.Source, Is.EqualTo(1));
             Assert.That(move.Destination, Is.EqualTo(2));
-            Assert.That(move.CyborgCount, Is.EqualTo(5));
+            Assert.That(move.CyborgCount, Is.EqualTo(2));
         }
 
         [Test]
-        public void NextMove_TwoEnemyOneWithLessCyborgs_MovesUnitsToWeakestEnemyFactory()
+        public void NextActions_TwoEnemyOneWithLessCyborgs_MovesUnitsToWeakestEnemyFactory()
         {
             var state = GameStateBuilder
                 .With
-                .PlayerFactory(1, 5, 3)
-                .EnemyFactory(2, 6, 3)
-                .EnemyFactory(3, 1, 3)
+                .PlayerFactory(1, 5, 0)
+                .EnemyFactory(2, 6, 0)
+                .EnemyFactory(3, 1, 0)
                 .Link(1, 2, 1)
                 .Link(1, 3, 1);
 
             var machine = new WarMachine(state);
 
-            var move = machine.NextMove() as MoveAction;
+            var move = machine.NextActions().Single() as MoveAction;
 
             Assert.That(move.Source, Is.EqualTo(1));
             Assert.That(move.Destination, Is.EqualTo(3));
-            Assert.That(move.CyborgCount, Is.EqualTo(5));
+            Assert.That(move.CyborgCount, Is.EqualTo(2));
         }
 
         [Test]
-        public void NextMove_TwoEnemyWithEqualCyborgs_MovesUnitsToQuickestEnemyFactory()
+        public void NextActions_TwoEnemyWithEqualCyborgs_MovesUnitsToQuickestEnemyFactory()
         {
             var state = GameStateBuilder
                 .With
-                .PlayerFactory(1, 5, 3)
-                .EnemyFactory(2, 3, 3)
-                .EnemyFactory(3, 3, 1)
-                .Link(1, 2, 1)
-                .Link(1, 3, 1);
+                .PlayerFactory(1, 5, 0)
+                .EnemyFactory(2, 4, 0)
+                .EnemyFactory(3, 4, 0)
+                .Link(1, 2, 5)
+                .Link(1, 3, 1); // Shortest Walk ;)
 
             var machine = new WarMachine(state);
 
-            var move = machine.NextMove() as MoveAction;
+            var move = machine.NextActions().Single() as MoveAction;
 
             Assert.That(move.Source, Is.EqualTo(1));
             Assert.That(move.Destination, Is.EqualTo(3));
             Assert.That(move.CyborgCount, Is.EqualTo(5));
         }
-
-        // TODO (RC): Multiple Moves - Just Enough to Take
 
         [Test]
         public void NextMoves_OneBaseLinkedToTwoEnemySteamRoller_MovesMinimalUnitsToBothEnemyFactories()
@@ -87,47 +84,12 @@ namespace Katas.Tests
             Assert.That(t3.CyborgCount, Is.EqualTo(2));
         }
 
+        // TODO (RC): Take neutral bases!
+        // TODO (RC): Factor in Travel Time * Production
+        // TODO (RC): Ensure NextActions calc < 50ms (First can be 100ms)
         // TODO (RC): Take into account troops en route.
-
+        // TODO (RC): Add INC Action to increase production
         // TODO (RC): Wait if Outnumbered
-    }
-
-    public class GameStateBuilder
-    {
-        public static GameStateBuilder With => new GameStateBuilder();
-
-        private readonly List<Entity> _entities;
-        private readonly List<FactoryLink> _links;
-
-        public GameStateBuilder()
-        {
-            _entities = new List<Entity>();
-            _links = new List<FactoryLink>();
-        }
-
-        public GameStateBuilder PlayerFactory(int id, int cyborgs, int production)
-        {
-            _entities.Add(new Factory(id, Owner.Player, cyborgs, production));
-            return this;
-        }
-
-        public GameStateBuilder EnemyFactory(int id, int cyborgs, int production)
-        {
-            _entities.Add(new Factory(id, Owner.Enemy, cyborgs, production));
-            return this;
-        }
-
-        public GameStateBuilder Link(int factory1, int factory2, int distance)
-        {
-            _links.Add(new FactoryLink(factory1, factory2, distance));
-            return this;
-        }
-
-        public static implicit operator GameState(GameStateBuilder factory)
-        {
-            var state = new GameState(factory._links);
-            state.AddEntities(factory._entities.ToArray());
-            return state;
-        }
+        // TODO (RC): Add Bomb Action
     }
 }

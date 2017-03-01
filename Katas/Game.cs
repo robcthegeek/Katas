@@ -34,12 +34,6 @@ namespace Katas
             _state.Entities.Add(Factory.Create(id, type, arg1, arg2, arg3, arg4, arg5));
         }
 
-        public Action NextMove()
-        {
-            var machine = new WarMachine(_state);
-            return machine.NextMove();
-        }
-
         public List<Action> NextActions()
         {
             var machine = new WarMachine(_state);
@@ -58,6 +52,9 @@ namespace Katas
 
         public List<Action> NextActions()
         {
+            var bases = _state.Factories.Where(x => x.Owner == (int)Owner.Player);
+            var possibleTargets = _state.Links.Where(x => bases.Any(f => f.Id == x.Factory1 || f.Id == x.Factory2));
+
             // Get Possible Moves
             var actions = _state.PossibleActions();
 
@@ -93,43 +90,6 @@ namespace Katas
                 return new List<Action> { new WaitAction() };
 
             return result;
-        }
-
-        public Action NextMove()
-        {
-            // Get Possible Moves
-            var actions = _state.PossibleActions();
-
-            // Iterate Moves - Determine Move w/ Least Casulties
-            var result = actions
-                .Where(x => x.Action is MoveAction)
-                .Select(x => x.Action as MoveAction)
-                .Select(x =>
-                {
-                    var playerCyborgs = x.CyborgCount;
-                    var destination = _state.Factories.Single(y => y.Id == x.Destination);
-                    var enemyCyborgs = destination.Cyborgs;
-                    var casulties = playerCyborgs - enemyCyborgs;
-
-                    return new
-                    {
-                        Casulties = casulties,
-                        Source = x.Source,
-                        Destination = x.Destination,
-                        Cyborgs = x.CyborgCount,
-                        Outgunned = casulties < 0,
-                        Distance = x.Destination
-                    };
-                })
-                .Where(x => !x.Outgunned)
-                .OrderBy(x => x.Casulties)
-                .ThenByDescending(x => x.Distance)
-                .FirstOrDefault();
-
-            if (result == null)
-                return new WaitAction();
-
-            return new MoveAction(result.Source, result.Destination, result.Cyborgs, result.Distance);
         }
     }
 
@@ -227,19 +187,19 @@ namespace Katas
     {
         public int SourceFactoryId { get; private set; }
         public int TargetFactoryId { get; private set; }
-        public int Headcount { get; private set; }
+        public int Cyborgs { get; private set; }
         public int TurnsRemaining { get; private set; }
 
-        public Troop(int id, int owner, int sourceFactoryId, int targetFactoryId, int headcount, int turnsRemaining) : base(id, owner)
+        public Troop(int id, int owner, int sourceFactoryId, int targetFactoryId, int cyborgs, int turnsRemaining) : base(id, owner)
         {
             SourceFactoryId = sourceFactoryId;
             TargetFactoryId = targetFactoryId;
-            Headcount = headcount;
+            Cyborgs = cyborgs;
             TurnsRemaining = turnsRemaining;
         }
 
-        public Troop(int id, Owner owner, int sourceFactoryId, int targetFactoryId, int headcount, int turnsRemaining)
-            : this(id, (int)owner, sourceFactoryId, targetFactoryId, headcount, turnsRemaining)
+        public Troop(int id, Owner owner, int sourceFactoryId, int targetFactoryId, int cyborgs, int turnsRemaining)
+            : this(id, (int)owner, sourceFactoryId, targetFactoryId, cyborgs, turnsRemaining)
         {
         }
     }
@@ -247,12 +207,15 @@ namespace Katas
     {
         public int Cyborgs { get; private set; }
         public int Production { get; private set; }
+        public int TurnsBeforeProducing { get; private set; }
+        public bool ProductionStopped => TurnsBeforeProducing > 0;
 
-        public Factory(int id, int owner, int cyborgs, int production)
+        public Factory(int id, int owner, int cyborgs, int production, int turnsBeforeProducing = 0)
             : base(id, owner)
         {
             Cyborgs = cyborgs;
             Production = production;
+            TurnsBeforeProducing = turnsBeforeProducing;
         }
 
         public Factory(int id, Owner owner, int cyborgs, int production)
