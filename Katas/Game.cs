@@ -56,13 +56,14 @@ namespace Katas
             var actions = _state.PossibleActions();
 
             // Iterate Moves - Determine Move w/ Least Casulties
-            var results = actions
+            var result = actions
                 .Where(x => x.Action is MoveAction)
                 .Select(x => x.Action as MoveAction)
                 .Select(x =>
                 {
                     var playerCyborgs = x.CyborgCount;
-                    var enemyCyborgs = _state.Factories.Single(y => y.Id == x.Destination).Cyborgs;
+                    var destination = _state.Factories.Single(y => y.Id == x.Destination);
+                    var enemyCyborgs = destination.Cyborgs;
                     var casulties = playerCyborgs - enemyCyborgs;
 
                     return new
@@ -71,14 +72,19 @@ namespace Katas
                         Source = x.Source,
                         Destination = x.Destination,
                         Cyborgs = x.CyborgCount,
-                        Outgunned = casulties < 0
+                        Outgunned = casulties < 0,
+                        Distance = x.Destination
                     };
                 })
                 .Where(x => !x.Outgunned)
                 .OrderBy(x => x.Casulties)
-                .First();
+                .ThenByDescending(x => x.Distance)
+                .FirstOrDefault();
 
-            return new MoveAction(results.Source, results.Destination, results.Cyborgs);
+            if (result == null)
+                return new WaitAction();
+
+            return new MoveAction(result.Source, result.Destination, result.Cyborgs, result.Distance);
         }
     }
 
@@ -124,7 +130,7 @@ namespace Katas
                         : link.Factory1;
                     var factory = playerOwned[playerFactoryId];
 
-                    var move = new MoveAction(playerFactoryId, opponentFactoryId, factory.Cyborgs);
+                    var move = new MoveAction(playerFactoryId, opponentFactoryId, factory.Cyborgs, link.Distance);
 
                     return new PossibleAction(move);
                 })
@@ -260,18 +266,35 @@ namespace Katas
         public int Source { get; private set; }
         public int Destination { get; private set; }
         public int CyborgCount { get; private set; }
+        public int Distance { get; private set; }
 
 
-        public MoveAction(int source, int destination, int cyborgCount)
+        public MoveAction(int source, int destination, int cyborgCount, int distance)
         {
             Source = source;
             Destination = destination;
             CyborgCount = cyborgCount;
+            Distance = distance;
         }
 
         public override string ToString()
         {
             return $"MOVE {Source} {Destination} {CyborgCount}";
+        }
+    }
+
+    public class MessageAction : Action
+    {
+        public string Message { get; private set; }
+
+        public MessageAction(string message)
+        {
+            Message = message;
+        }
+
+        public override string ToString()
+        {
+            return $"MSG {Message}";
         }
     }
 }
