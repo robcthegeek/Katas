@@ -39,6 +39,12 @@ namespace Katas
             var machine = new WarMachine(_state);
             return machine.NextMove();
         }
+
+        public List<Action> NextActions()
+        {
+            var machine = new WarMachine(_state);
+            return machine.NextActions();
+        }
     }
 
     public class WarMachine
@@ -48,6 +54,45 @@ namespace Katas
         public WarMachine(GameState state)
         {
             _state = state;
+        }
+
+        public List<Action> NextActions()
+        {
+            // Get Possible Moves
+            var actions = _state.PossibleActions();
+
+            // Iterate Moves - Determine Move w/ Least Casulties
+            var result = actions
+                .Where(x => x.Action is MoveAction)
+                .Select(x => x.Action as MoveAction)
+                .Select(x =>
+                {
+                    var playerCyborgs = x.CyborgCount;
+                    var destination = _state.Factories.Single(y => y.Id == x.Destination);
+                    var enemyCyborgs = destination.Cyborgs;
+
+                    return new
+                    {
+                        Casulties = playerCyborgs - enemyCyborgs,
+                        Source = x.Source,
+                        Destination = x.Destination,
+                        Cyborgs = x.CyborgCount,
+                        Distance = x.Destination,
+                        CyborgsToCapture = enemyCyborgs + 1,
+                        Capturable = playerCyborgs > enemyCyborgs
+                    };
+                })
+                .Where(x => x.Capturable)
+                .OrderBy(x => x.Casulties)
+                .ThenByDescending(x => x.Distance)
+                .Select(x => new MoveAction(x.Source, x.Destination, x.CyborgsToCapture, x.Distance))
+                .Cast<Action>()
+                .ToList();
+
+            if (!result.Any())
+                return new List<Action> { new WaitAction() };
+
+            return result;
         }
 
         public Action NextMove()

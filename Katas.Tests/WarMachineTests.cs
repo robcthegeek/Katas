@@ -64,6 +64,29 @@ namespace Katas.Tests
             Assert.That(move.CyborgCount, Is.EqualTo(5));
         }
 
+        // TODO (RC): Multiple Moves - Just Enough to Take
+
+        [Test]
+        public void NextMoves_OneBaseLinkedToTwoEnemySteamRoller_MovesMinimalUnitsToBothEnemyFactories()
+        {
+            var state = GameStateBuilder
+                .With
+                .PlayerFactory(1, 100, 3)
+                .EnemyFactory(2, 1, 3)
+                .EnemyFactory(3, 1, 3)
+                .Link(1, 2, 1)
+                .Link(1, 3, 1);
+
+            var machine = new WarMachine(state);
+
+            var moves = machine.NextActions().OfType<MoveAction>().ToList();
+
+            var t2 = moves.Single(x => x.Destination == 2);
+            Assert.That(t2.CyborgCount, Is.EqualTo(2));
+            var t3 = moves.Single(x => x.Destination == 3);
+            Assert.That(t3.CyborgCount, Is.EqualTo(2));
+        }
+
         // TODO (RC): Take into account troops en route.
 
         // TODO (RC): Wait if Outnumbered
