@@ -179,7 +179,37 @@ namespace Katas
                 return new Troop(id, arg1, arg2, arg3, arg4, arg5);
             }
 
+            if (type == "BOMB")
+            {
+                return new Bomb(id, arg1, arg2, arg3, arg4);
+            }
+
             throw new ArgumentOutOfRangeException($"Unexpected entity type '{type}'.");
+        }
+    }
+
+    public class Bomb : Entity
+    {
+        public int Id { get; private set; }
+        public bool PlayerOwned { get; private set; }
+        public bool OpponentOwned { get; private set; }
+        public int Source { get; private set; }
+        public int Target { get; private set; }
+        public int TurnsRemaining { get; private set; }
+
+        public Bomb(int id, int owner, int source, int target, int turnsRemaining) : base(id, owner)
+        {
+            Id = id;
+            PlayerOwned = owner == 1;
+            OpponentOwned = owner == -1;
+            Source = source;
+            Target = target;
+            TurnsRemaining = turnsRemaining;
+        }
+
+        public Bomb(int id, Owner owner, int source, int target, int turnsRemaining) :
+            this(id, (int)owner, source, target, turnsRemaining)
+        {
         }
     }
 
