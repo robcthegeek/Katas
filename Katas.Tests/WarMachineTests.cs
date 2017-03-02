@@ -93,5 +93,6 @@ namespace Katas.Tests
         // TODO (RC): Add INC Action to increase production
         // TODO (RC): Wait if Outnumbered
         // TODO (RC): Add Bomb Action
+        // TODO (RC): Bombs can be really useful for taking neutral targets etc.
     }
 }
