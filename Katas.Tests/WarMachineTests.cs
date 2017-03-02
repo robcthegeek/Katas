@@ -86,6 +86,8 @@ namespace Katas.Tests
 
         // TODO (RC): Take neutral bases!
         // TODO (RC): Factor in Travel Time * Production
+        // TODO (RC): Take into account troops en route.
+        // TODO (RC): Move troops from isolated player base (not connected to enemy or neutral - move to the front to SMASH THE EN
         // TODO (RC): Ensure NextActions calc < 50ms (First can be 100ms)
         // TODO (RC): Take into account troops en route.
         // TODO (RC): Add INC Action to increase production
