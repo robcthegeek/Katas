@@ -91,5 +91,21 @@ namespace Katas.Tests
             Assert.That(moves.SingleOrDefault(x => x.Source == 1 && x.Destination == 2), Is.Not.Null);
             Assert.That(moves.SingleOrDefault(x => x.Source == 1 && x.Destination == 3), Is.Not.Null);
         }
+
+        [Test]
+        public void FactoryLinks_OneLink_LinksBothSides()
+        {
+            GameState state = GameStateBuilder
+                .With
+                .PlayerFactory(1, 1, 3)
+                .EnemyFactory(1, 1, 3)
+                .Link(1, 2, 3);
+
+            var f1 = state.FactoryLinks[1];
+            Assert.That(f1[0].Factory2, Is.EqualTo(2));
+
+            var f2 = state.FactoryLinks[2];
+            Assert.That(f2[0].Factory2, Is.EqualTo(1));
+        }
     }
 }

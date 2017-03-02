@@ -53,7 +53,11 @@ namespace Katas
         public List<Action> NextActions()
         {
             var bases = _state.Factories.Where(x => x.Owner == (int)Owner.Player);
-            var possibleTargets = _state.Links.Where(x => bases.Any(f => f.Id == x.Factory1 || f.Id == x.Factory2));
+
+            // TODO (RC): Determine "Cost" of Possible Targets
+
+            // TODO (RC): Iterate through bases, attacking "cheapest", sending bots until out.
+
 
             // Get Possible Moves
             var actions = _state.PossibleActions();
@@ -109,6 +113,15 @@ namespace Katas
         public void AddEntities(params Entity[] entities)
         {
             Entities.AddRange(entities);
+        }
+
+        public Dictionary<int, List<FactoryLink>> FactoryLinks
+        {
+            get
+            {
+                // TODO (RC): Build a Lookup Hash for Factories Connected to Key.
+                return null;
+            }
         }
 
         public List<PossibleAction> PossibleActions()
