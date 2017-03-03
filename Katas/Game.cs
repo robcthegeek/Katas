@@ -103,25 +103,43 @@ namespace Katas
         public List<Entity> Entities { get; private set; }
         public IList<Factory> Factories => Entities.OfType<Factory>().ToList();
         public IList<Troop> Troops => Entities.OfType<Troop>().ToList();
+        public Dictionary<int, List<FactoryLink>> FactoryLinks { get; private set; }
 
         public GameState(IList<FactoryLink> links)
         {
             Links = links;
             Entities = new List<Entity>();
+            FactoryLinks = MapFactories(links);
+        }
+
+        private Dictionary<int, List<FactoryLink>> MapFactories(IList<FactoryLink> links)
+        {
+            var result = new Dictionary<int, List<FactoryLink>>();
+
+            foreach (var link in links)
+            {
+                var f1 = result.ContainsKey(link.Factory1)
+                    ? result[link.Factory1]
+                    : new List<FactoryLink>();
+                result[link.Factory1] = f1;
+
+                f1.Add(new FactoryLink(link.Factory1, link.Factory2, link.Distance));
+
+                var f2 = result.ContainsKey(link.Factory2)
+                    ? result[link.Factory2]
+                    : new List<FactoryLink>();
+
+                f2.Add(new FactoryLink(link.Factory2, link.Factory1, link.Distance));
+
+                result[link.Factory2] = f2;
+            }
+
+            return result;
         }
 
         public void AddEntities(params Entity[] entities)
         {
             Entities.AddRange(entities);
-        }
-
-        public Dictionary<int, List<FactoryLink>> FactoryLinks
-        {
-            get
-            {
-                // TODO (RC): Build a Lookup Hash for Factories Connected to Key.
-                return null;
-            }
         }
 
         public List<PossibleAction> PossibleActions()
