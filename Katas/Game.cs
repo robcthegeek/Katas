@@ -61,29 +61,39 @@ namespace Katas
             var moves = bases
                 .SelectMany(b =>
                 {
+                    var factory = _state.Factories.Single(f => f.Id == b.Id);
+                    var meta = _state.Factory(b.Id);
+                    var availTroops = factory.Cyborgs;
+                    var result = new List<Action>();
+
+
+                    if (meta.IsRearGuard && meta.CanIncreaseProd)
+                    {
+                        result.Add(new IncreaseProductionAction(b.Id));
+                        availTroops -= 10;
+                    }
+
                     var links = _state.FactoryLinks[b.Id];
-                    var f1 = _state.Factories.Single(f => f.Id == b.Id);
 
                     var possibles = links.Select(l =>
                     {
-                        var f2 = _state.Factories.Single(f => f.Id == l.Factory2);
+                        var f2Meta = _state.Factory(l.Factory2);
+
                         return new
                         {
                             Factory1 = l.Factory1,
                             Factory2 = l.Factory2,
                             Distance = l.Distance,
-                            CaptureCost = f2.Cyborgs + (l.Distance * f2.Production) + 1
+                            CaptureCost = f2Meta.ForceRequiredToCapture
                         };
                     })
                     .OrderBy(p => p.CaptureCost)
                     .ThenBy(t => t.Distance)
                     .ToList();
 
-
                     if (!possibles.Any())
                         return new List<Action> { new WaitAction( )};
 
-                    var availTroops = f1.Cyborgs;
                     return possibles
                         .TakeWhile(p => (availTroops -= p.CaptureCost) > 0)
                         .Select(p => new MoveAction(p.Factory1, p.Factory2, p.CaptureCost))
@@ -164,14 +174,22 @@ namespace Katas
                 .Where(t => t.TargetFactoryId == id && t.Owner == (int)Owner.Enemy)
                 .Sum(x => x.Cyborgs);
 
-            var forceRequiredToCapture = factory.Owner == (int)Owner.Player
+            var forceRequiredToCapture = factory.Owner == (int) Owner.Player
                 ? 0
                 : (factory.Cyborgs + 1 + enemyEnRoute) - playerEnRoute;
+
+            var capturing = false;
+            if (forceRequiredToCapture <= 0 && playerEnRoute > 0)
+            {
+                forceRequiredToCapture = 0;
+                capturing = true;
+            }
 
             return new FactoryMetadata
             {
                 IsRearGuard = rearGuard,
                 CanIncreaseProd = factory.Cyborgs >= 10,
+                Capturing = capturing,
                 PlayerEnRoute = playerEnRoute,
                 EnemyEnRoute = enemyEnRoute,
                 ForceRequiredToCapture = forceRequiredToCapture,
@@ -184,6 +202,7 @@ namespace Katas
     {
         public bool IsRearGuard { get; set; }
         public bool CanIncreaseProd { get; set; }
+        public bool Capturing { get; set; }
         public int PlayerEnRoute { get; set; }
         public int EnemyEnRoute { get; set; }
         public int ForceRequiredToCapture { get; set; }
@@ -374,6 +393,21 @@ namespace Katas
         public override string ToString()
         {
             return $"MSG {Message}";
+        }
+    }
+
+    public class IncreaseProductionAction : Action
+    {
+        public int Factory { get; private set; }
+
+        public IncreaseProductionAction(int factoryId)
+        {
+            Factory = factoryId;
+        }
+
+        public override string ToString()
+        {
+            return $"INC {Factory}";
         }
     }
 }

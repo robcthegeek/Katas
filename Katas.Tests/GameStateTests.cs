@@ -116,7 +116,7 @@ namespace Katas.Tests
             GameState state = GameStateBuilder
                 .With
                 .PlayerFactory(1, 5, 0)
-                .NeutralFactory(2, 5, 0) // << Target
+                .NeutralFactory(2, 0, 0) // << Target
                 .EnemyFactory(3, 5, 0)
                 .Link(1, 2, 5)
                 .Link(2, 3, 5)
@@ -129,7 +129,7 @@ namespace Katas.Tests
             //  6 to win overall
 
             Assert.That(state.Factory(1).ForceRequiredToCapture, Is.EqualTo(0));
-            Assert.That(state.Factory(2).ForceRequiredToCapture, Is.EqualTo(6));
+            Assert.That(state.Factory(2).ForceRequiredToCapture, Is.EqualTo(1));
             Assert.That(state.Factory(3).ForceRequiredToCapture, Is.EqualTo(6));
         }
 
@@ -147,5 +147,25 @@ namespace Katas.Tests
             Assert.That(state.Factory(2).LinkedFactories, Contains.Item(1));
             Assert.That(state.Factory(3).LinkedFactories, Is.Empty);
         }
+
+        [Test]
+        public void FactoryMeta_WhenCaptureImminent_SetsCapturing()
+        {
+            GameState state = GameStateBuilder
+                .With
+                .PlayerFactory(1, 5, 0)
+                .EnemyFactory(2, 5, 0)
+                .EnemyFactory(3, 5, 0)
+                .PlayerTroop(1, 1, 2, 6, 1)
+                .Link(1, 2, 5)
+                .Link(2, 3, 5);
+
+            Assert.That(state.Factory(2).Capturing, Is.True);
+            Assert.That(state.Factory(3).Capturing, Is.False);
+        }
+
+        // TODO (RC): Add RequiredDefense - Enemy Neighbours
+        // TODO (RC): Add Cyborgs to Meta for Ease of Use
+        // TODO (RC): Remove Factory Links - Use Meta Instead
     }
 }

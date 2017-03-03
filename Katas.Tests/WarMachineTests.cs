@@ -84,12 +84,12 @@ namespace Katas.Tests
             Assert.That(t3.CyborgCount, Is.EqualTo(2));
         }
 
-        // TODO (RC): Take neutral bases!
-        // TODO (RC): Take into account troops en route.
+        // TODO (RC): Reinforce from Rear Guard (Production - 1)
+
+        // TODO (RC): Bomb enemy bases > 10
+
         // TODO (RC): Move troops from isolated player base (not connected to enemy or neutral - move to the front to SMASH THE EN
         // TODO (RC): Ensure NextActions calc < 50ms (First can be 100ms)
-        // TODO (RC): Add INC Action to increase production
-        // TODO (RC): Add Bomb Action
         // TODO (RC): Bombs can be really useful for taking neutral targets etc.
     }
 }
