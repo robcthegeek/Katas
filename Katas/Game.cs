@@ -37,7 +37,11 @@ namespace Katas
         public List<Action> NextActions()
         {
             var machine = new WarMachine(_state);
-            return machine.NextActions();
+            var actions = machine.NextActions();
+
+            return !actions.Any()
+                ? new List<Action> { new WaitAction() }
+                : actions;
         }
     }
 
@@ -135,6 +139,59 @@ namespace Katas
         public void AddEntities(params Entity[] entities)
         {
             Entities.AddRange(entities);
+        }
+
+        public FactoryMetadata Factory(int id)
+        {
+            var factory = Factories.Single(x => x.Id == id);
+            var links = FactoryLinks.ContainsKey(id)
+                ? FactoryLinks[id].Select(x => x.Factory2).ToList()
+                : new List<int>();
+
+            var rearGuard = FactoryLinks.ContainsKey(id) && FactoryLinks[id].All(link =>
+            {
+                var linked = Factories.Single(f => f.Id == link.Factory2);
+                return linked.Owner == (int) Owner.Player;
+            });
+
+            var playerEnRoute = Entities
+                .OfType<Troop>()
+                .Where(t => t.TargetFactoryId == id && t.Owner == (int)Owner.Player)
+                .Sum(x => x.Cyborgs);
+
+            var enemyEnRoute = Entities
+                .OfType<Troop>()
+                .Where(t => t.TargetFactoryId == id && t.Owner == (int)Owner.Enemy)
+                .Sum(x => x.Cyborgs);
+
+            var forceRequiredToCapture = factory.Owner == (int)Owner.Player
+                ? 0
+                : (factory.Cyborgs + 1 + enemyEnRoute) - playerEnRoute;
+
+            return new FactoryMetadata
+            {
+                IsRearGuard = rearGuard,
+                CanIncreaseProd = factory.Cyborgs >= 10,
+                PlayerEnRoute = playerEnRoute,
+                EnemyEnRoute = enemyEnRoute,
+                ForceRequiredToCapture = forceRequiredToCapture,
+                LinkedFactories = links
+            };
+        }
+    }
+
+    public class FactoryMetadata
+    {
+        public bool IsRearGuard { get; set; }
+        public bool CanIncreaseProd { get; set; }
+        public int PlayerEnRoute { get; set; }
+        public int EnemyEnRoute { get; set; }
+        public int ForceRequiredToCapture { get; set; }
+        public List<int> LinkedFactories { get; set; }
+
+        public FactoryMetadata()
+        {
+            LinkedFactories = new List<int>();
         }
     }
 
