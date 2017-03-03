@@ -28,7 +28,7 @@ namespace Katas.Tests
         {
             var state = GameStateBuilder
                 .With
-                .PlayerFactory(1, 5, 0)
+                .PlayerFactory(1, 3, 0)
                 .EnemyFactory(2, 6, 0)
                 .EnemyFactory(3, 1, 0)
                 .Link(1, 2, 1)
@@ -48,9 +48,9 @@ namespace Katas.Tests
         {
             var state = GameStateBuilder
                 .With
-                .PlayerFactory(1, 5, 0)
-                .EnemyFactory(2, 4, 0)
-                .EnemyFactory(3, 4, 0)
+                .PlayerFactory(1, 3, 0)
+                .EnemyFactory(2, 1, 0)
+                .EnemyFactory(3, 1, 0)
                 .Link(1, 2, 5)
                 .Link(1, 3, 1); // Shortest Walk ;)
 
@@ -60,7 +60,7 @@ namespace Katas.Tests
 
             Assert.That(move.Source, Is.EqualTo(1));
             Assert.That(move.Destination, Is.EqualTo(3));
-            Assert.That(move.CyborgCount, Is.EqualTo(5));
+            Assert.That(move.CyborgCount, Is.EqualTo(2));
         }
 
         [Test]
@@ -69,8 +69,8 @@ namespace Katas.Tests
             var state = GameStateBuilder
                 .With
                 .PlayerFactory(1, 100, 3)
-                .EnemyFactory(2, 1, 3)
-                .EnemyFactory(3, 1, 3)
+                .EnemyFactory(2, 1, 0)
+                .EnemyFactory(3, 1, 0)
                 .Link(1, 2, 1)
                 .Link(1, 3, 1);
 

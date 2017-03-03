@@ -54,46 +54,41 @@ namespace Katas
         {
             var bases = _state.Factories.Where(x => x.Owner == (int)Owner.Player);
 
-            // TODO (RC): Determine "Cost" of Possible Targets
-
-            // TODO (RC): Iterate through bases, attacking "cheapest", sending bots until out.
-
-
-            // Get Possible Moves
-            var actions = _state.PossibleActions();
-
-            // Iterate Moves - Determine Move w/ Least Casulties
-            var result = actions
-                .Where(x => x.Action is MoveAction)
-                .Select(x => x.Action as MoveAction)
-                .Select(x =>
+            var moves = bases
+                .SelectMany(b =>
                 {
-                    var playerCyborgs = x.CyborgCount;
-                    var destination = _state.Factories.Single(y => y.Id == x.Destination);
-                    var enemyCyborgs = destination.Cyborgs;
+                    var links = _state.FactoryLinks[b.Id];
+                    var f1 = _state.Factories.Single(f => f.Id == b.Id);
 
-                    return new
+                    var possibles = links.Select(l =>
                     {
-                        Casulties = playerCyborgs - enemyCyborgs,
-                        Source = x.Source,
-                        Destination = x.Destination,
-                        Cyborgs = x.CyborgCount,
-                        Distance = x.Destination,
-                        CyborgsToCapture = enemyCyborgs + 1,
-                        Capturable = playerCyborgs > enemyCyborgs
-                    };
+                        var f2 = _state.Factories.Single(f => f.Id == l.Factory2);
+                        return new
+                        {
+                            Factory1 = l.Factory1,
+                            Factory2 = l.Factory2,
+                            Distance = l.Distance,
+                            CaptureCost = f2.Cyborgs + (l.Distance * f2.Production) + 1
+                        };
+                    })
+                    .OrderBy(p => p.CaptureCost)
+                    .ThenBy(t => t.Distance)
+                    .ToList();
+
+
+                    if (!possibles.Any())
+                        return new List<Action> { new WaitAction( )};
+
+                    var availTroops = f1.Cyborgs;
+                    return possibles
+                        .TakeWhile(p => (availTroops -= p.CaptureCost) > 0)
+                        .Select(p => new MoveAction(p.Factory1, p.Factory2, p.CaptureCost))
+                        .Cast<Action>()
+                        .ToList();
                 })
-                .Where(x => x.Capturable)
-                .OrderBy(x => x.Casulties)
-                .ThenByDescending(x => x.Distance)
-                .Select(x => new MoveAction(x.Source, x.Destination, x.CyborgsToCapture, x.Distance))
-                .Cast<Action>()
                 .ToList();
 
-            if (!result.Any())
-                return new List<Action> { new WaitAction() };
-
-            return result;
+            return moves;
         }
     }
 
@@ -166,7 +161,7 @@ namespace Katas
                         : link.Factory1;
                     var factory = playerOwned[playerFactoryId];
 
-                    var move = new MoveAction(playerFactoryId, opponentFactoryId, factory.Cyborgs, link.Distance);
+                    var move = new MoveAction(playerFactoryId, opponentFactoryId, factory.Cyborgs);
 
                     return new PossibleAction(move);
                 })
@@ -335,15 +330,13 @@ namespace Katas
         public int Source { get; private set; }
         public int Destination { get; private set; }
         public int CyborgCount { get; private set; }
-        public int Distance { get; private set; }
 
 
-        public MoveAction(int source, int destination, int cyborgCount, int distance)
+        public MoveAction(int source, int destination, int cyborgCount)
         {
             Source = source;
             Destination = destination;
             CyborgCount = cyborgCount;
-            Distance = distance;
         }
 
         public override string ToString()
