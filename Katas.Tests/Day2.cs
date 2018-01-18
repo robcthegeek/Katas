@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace Katas.Tests
 {
     [TestFixture]
-    public class DayTwo
+    public class Day2
     {
         private int Solve(string spreadsheet, string split = "[NL]")
         {

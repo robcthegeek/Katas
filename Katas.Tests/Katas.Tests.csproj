@@ -144,6 +144,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Day3.cs" />
     <Compile Include="Day2.cs" />
     <Compile Include="Day1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
