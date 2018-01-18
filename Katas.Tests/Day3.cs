@@ -68,13 +68,13 @@ namespace Katas.Tests
             { Direction.Down, Direction.Right },
         };
 
-        internal List<MemoryAddress> Addresses { get; private set; }
+        internal Dictionary<Point, MemoryAddress> Addresses { get; private set; }
 
         public Map(int maxAddress)
         {
             _maxAddress = maxAddress;
 
-            Addresses = new List<MemoryAddress>();
+            Addresses = new Dictionary<Point, MemoryAddress>();
 
             // Draw this thing somehow :)
             var currentPoint = new Point(0, 0);
@@ -82,7 +82,7 @@ namespace Katas.Tests
 
             for (uint i = 1; i <= maxAddress; i++)
             {
-                Addresses.Add(new MemoryAddress(i, currentPoint));
+                Addresses.Add(currentPoint, new MemoryAddress(i, currentPoint));
                 direction = GoSpirograph(currentPoint, direction);
                 currentPoint = currentPoint.Move(direction);
             }
@@ -101,7 +101,7 @@ namespace Katas.Tests
         private Direction FindDirection(Point location, Direction currentDirection, Direction checkDirection)
         {
             var check = location.Move(checkDirection);
-            return (Addresses.Any(ma => ma.Point.X == check.X && ma.Point.Y == check.Y))
+            return (Addresses.ContainsKey(check))
                 ? currentDirection
                 : checkDirection;
         }
@@ -113,12 +113,14 @@ namespace Katas.Tests
             sb.AppendLine(Title);
             sb.AppendLine(new string('=', Title.Length));
 
-            var xMin = map.Addresses.Min(address => address.Point.X);
-            var xMax = map.Addresses.Max(address => address.Point.X);
-            var yMin = map.Addresses.Min(address => address.Point.Y);
-            var yMax = map.Addresses.Max(address => address.Point.Y);
+            var allPoints = map.Addresses.Keys;
 
-            int maxDigits = map.Addresses.Max(address => address.Address).ToString().Length;
+            var xMin = allPoints.Min(p => p.X);
+            var xMax = allPoints.Max(p => p.X);
+            var yMin = allPoints.Min(p => p.Y);
+            var yMax = allPoints.Max(p => p.Y);
+
+            int maxDigits = map.Addresses.Values.Max(address => address.Address).ToString().Length;
 
             sb.AppendLine($"Map Range:: X: {xMin}-{xMax} / Y: {yMin}-{yMax}");
 
@@ -126,14 +128,22 @@ namespace Katas.Tests
             {
                 for (int x = xMin; x < xMax; x++)
                 {
-                    sb.AppendFormat("{0,-" + (maxDigits + 1) + "}", map.Addresses.Single(ma => ma.Point.X == x && ma.Point.Y == y).Address);
+                    var key = new Point(x, y);
+                    if (!map.Addresses.ContainsKey(key))
+                    {
+                        Console.WriteLine($"WARN: Key Not Found for {key.X}/{key.Y}");
+                    }
+                    else
+                    {
+                        sb.AppendFormat("{0,-" + (maxDigits + 1) + "}", map.Addresses[key].Address);
+                    }
                 }
 
                 sb.AppendLine();
             }
 
-            //return sb.ToString();
-            return "Disabled";
+            return sb.ToString();
+            //return "Disabled";
         }
     }
 
@@ -147,7 +157,7 @@ namespace Katas.Tests
             Console.WriteLine(map);
 
             // Get Vector for Address
-            var vector = map.Addresses.Single(ma => ma.Address == address).Point;
+            var vector = map.Addresses.Values.Single(ma => ma.Address == address).Point;
 
             // Taxicab Geometry - Get to Zero!
             var result = Math.Abs(vector.X) + Math.Abs(vector.Y);
@@ -168,7 +178,7 @@ namespace Katas.Tests
         }
 
         [Test]
-        [Ignore("WIP")]
+        //[Ignore("WIP")]
         public void Solve_ChallengeInput_Produces_WinningResult()
         {
             var solution = Solve(289326);
