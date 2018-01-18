@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace Katas.Tests
 {
     [TestFixture]
-    public class DayOne
+    public class Day1
     {
         private int Solve(params int[] digits)
         {
