@@ -132,10 +132,8 @@ namespace Katas.Tests
                 sb.AppendLine();
             }
 
-            sb.AppendLine("TODO");
-
-
-            return sb.ToString();
+            //return sb.ToString();
+            return "Disabled";
         }
     }
 
@@ -147,7 +145,15 @@ namespace Katas.Tests
             var map = new Map(address);
 
             Console.WriteLine(map);
-            return -1;
+
+            // Get Vector for Address
+            var vector = map.Addresses.Single(ma => ma.Address == address).Point;
+
+            // Taxicab Geometry - Get to Zero!
+            var result = Math.Abs(vector.X) + Math.Abs(vector.Y);
+            Console.WriteLine($"Maths: {result}");
+
+            return result;
         }
 
         [TestCase(1, 0)]
@@ -165,7 +171,7 @@ namespace Katas.Tests
         [Ignore("WIP")]
         public void Solve_ChallengeInput_Produces_WinningResult()
         {
-            var solution = Solve(123);
+            var solution = Solve(289326);
 
             Console.WriteLine($"Solution is... (drum roll): {solution}");
         }
