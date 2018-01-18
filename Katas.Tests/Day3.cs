@@ -31,6 +31,7 @@ namespace Katas.Tests
             throw new NotImplementedException("Where the fuck are you going?");
         }
     }
+
     public struct MemoryAddress
     {
         public Point Point { get; set; }
@@ -59,6 +60,14 @@ namespace Katas.Tests
     {
         private readonly int _maxAddress;
 
+        private static readonly Dictionary<Direction, Direction> GoingToTryDirectionMap = new Dictionary<Direction, Direction>()
+        {
+            { Direction.Right, Direction.Up },
+            { Direction.Up, Direction.Left },
+            { Direction.Left, Direction.Down },
+            { Direction.Down, Direction.Right },
+        };
+
         internal List<MemoryAddress> Addresses { get; private set; }
 
         public Map(int maxAddress)
@@ -74,53 +83,27 @@ namespace Katas.Tests
             for (uint i = 1; i <= maxAddress; i++)
             {
                 Addresses.Add(new MemoryAddress(i, currentPoint));
-
-                if (!(currentPoint.X == 0 && currentPoint.Y == 0))
-                {
-                    // Where am I going from here?
-                    if  (direction == Direction.Right)
-                    {
-                        // Can I go Up?
-                        if (!Addresses.Any(ma => ma.Point.X == currentPoint.X && ma.Point.Y == currentPoint.Y + 1))
-                        {
-                            direction = Direction.Up;
-                        }
-                        // Otherwise keep going
-                    }
-
-                    if (direction == Direction.Up)
-                    {
-                        // Can I go Left?
-                        if (!Addresses.Any(ma => ma.Point.X == currentPoint.X - 1 && ma.Point.Y == currentPoint.Y))
-                        {
-                            direction = Direction.Left;
-                        }
-                        // Otherwise keep going
-                    }
-
-                    if (direction == Direction.Left)
-                    {
-                        // Can I go Down?
-                        if (!Addresses.Any(ma => ma.Point.X == currentPoint.X && ma.Point.Y == currentPoint.Y - 1))
-                        {
-                            direction = Direction.Down;
-                        }
-                        // Otherwise keep going
-                    }
-
-                    if (direction == Direction.Down)
-                    {
-                        // Can I go Right?
-                        if (!Addresses.Any(ma => ma.Point.X == currentPoint.X + 1 && ma.Point.Y == currentPoint.Y))
-                        {
-                            direction = Direction.Right;
-                        }
-                        // Otherwise keep going
-                    }
-                }
-
+                direction = GoSpirograph(currentPoint, direction);
                 currentPoint = currentPoint.Move(direction);
             }
+        }
+
+        private Direction GoSpirograph(Point location, Direction currentDirection)
+        {
+            // Always start with 'Right'
+            if (location.X == 0 && location.Y == 0)
+                return Direction.Right;
+
+            var tryDirection = GoingToTryDirectionMap[currentDirection];
+            return FindDirection(location, currentDirection, tryDirection);
+        }
+
+        private Direction FindDirection(Point location, Direction currentDirection, Direction checkDirection)
+        {
+            var check = location.Move(checkDirection);
+            return (Addresses.Any(ma => ma.Point.X == check.X && ma.Point.Y == check.Y))
+                ? currentDirection
+                : checkDirection;
         }
 
         public static implicit operator string(Map map)
@@ -135,13 +118,15 @@ namespace Katas.Tests
             var yMin = map.Addresses.Min(address => address.Point.Y);
             var yMax = map.Addresses.Max(address => address.Point.Y);
 
+            int maxDigits = map.Addresses.Max(address => address.Address).ToString().Length;
+
             sb.AppendLine($"Map Range:: X: {xMin}-{xMax} / Y: {yMin}-{yMax}");
 
             for (int y = yMax; y > yMin; y--)
             {
                 for (int x = xMin; x < xMax; x++)
                 {
-                    sb.Append($"{map.Addresses.Single(ma => ma.Point.X == x && ma.Point.Y == y).Address} \t");
+                    sb.AppendFormat("{0,-" + (maxDigits + 1) + "}", map.Addresses.Single(ma => ma.Point.X == x && ma.Point.Y == y).Address);
                 }
 
                 sb.AppendLine();
@@ -159,8 +144,6 @@ namespace Katas.Tests
     {
         private int Solve(int address)
         {
-
-            // TODO: Draw Map
             var map = new Map(address);
 
             Console.WriteLine(map);
