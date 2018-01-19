@@ -17,21 +17,12 @@ namespace Katas.Tests
             Y = y;
         }
 
-        public Point Move(Direction direction)
+        public override string ToString()
         {
-            if (direction == Direction.Left)
-                return new Point(X - 1, Y);
-            if (direction == Direction.Right)
-                return new Point(X + 1, Y);
-            if (direction == Direction.Up)
-                return new Point(X, Y + 1);
-            if (direction == Direction.Down)
-                return new Point(X, Y - 1);
-
-            throw new NotImplementedException("Where the fuck are you going?");
+            return $"({X},{Y})";
         }
 
-        internal Point StepTowards(Point b)
+    internal Point StepTowards(Point b)
         {
             // Can only go along single axis
             if (X != b.X && Y != b.Y)
@@ -84,8 +75,6 @@ namespace Katas.Tests
 
     public class Map
     {
-        private readonly int _maxAddress;
-
         private static readonly Dictionary<Direction, Direction> GoingToTryDirectionMap = new Dictionary<Direction, Direction>()
         {
             { Direction.Right, Direction.Up },
@@ -98,8 +87,6 @@ namespace Katas.Tests
 
         public Map(int maxAddress)
         {
-            _maxAddress = maxAddress;
-
             var currentAddress = new MemoryAddress(0, 0, 0);
             var direction = Direction.Right;
 
@@ -111,17 +98,17 @@ namespace Katas.Tests
             while (currentAddress.Address < maxAddress)
             {
                 var turningPoint = GetTurningPoint(currentAddress.Point, direction);
+                Console.WriteLine($"Address: {currentAddress.Address} - Current Position: {currentAddress.Point}, Turning Point: {turningPoint}");
                 currentAddress = Addresses.MoveFrom(currentAddress, turningPoint);
             }
         }
 
         private Point GetTurningPoint(Point currentPoint, Direction direction)
         {
-            // e.g. If going up, trying to go left - I can just find the highest 'Y' on the current 'X' and add 1
             var trying = GoingToTryDirectionMap[direction];
             var mappedPoints = Addresses.Keys;
 
-            if (!mappedPoints.Any())
+            if (currentPoint.X == 0 && currentPoint.Y == 0)
                 return new Point(1, 0);
 
             Point result = new Point(0, 0);
@@ -130,6 +117,7 @@ namespace Katas.Tests
             {
                 var maxX = mappedPoints.Max(p => p.X);
                 result = new Point(maxX + 1, currentPoint.Y);
+                Console.WriteLine($"Trying to Move {trying.ToString()} - Moving from {currentPoint} -> {result}");
             }
 
             if (trying == Direction.Down)
@@ -152,27 +140,9 @@ namespace Katas.Tests
 
             // Make sure I've not screwed up
             if (mappedPoints.Contains(result))
-                throw new Exception($"Turning Point {result.X}/{result.Y} Already Exists");
+                throw new Exception($"Turning Point {result} Already Exists");
 
             return result;
-        }
-
-        private Direction GoSpirograph(Point location, Direction currentDirection)
-        {
-            // Always start with 'Right'
-            if (location.X == 0 && location.Y == 0)
-                return Direction.Right;
-
-            var tryDirection = GoingToTryDirectionMap[currentDirection];
-            return FindDirection(location, currentDirection, tryDirection);
-        }
-
-        private Direction FindDirection(Point location, Direction currentDirection, Direction checkDirection)
-        {
-            var check = location.Move(checkDirection);
-            return (Addresses.ContainsKey(check))
-                ? currentDirection
-                : checkDirection;
         }
 
         public static implicit operator string(Map map)
@@ -217,10 +187,9 @@ namespace Katas.Tests
 
     internal static class DictionaryExtensions
     {
-        internal static MemoryAddress MoveFrom(this Dictionary<Point, MemoryAddress> addresses, MemoryAddress current, Point b)
+        internal static MemoryAddress MoveFrom(this Dictionary<Point, MemoryAddress> addresses, MemoryAddress current, Point destination)
         {
-            // TODO: Add to addresses as we go...
-            var step = current.Point.StepTowards(b);
+            var step = current.Point.StepTowards(destination);
 
             var result =  new MemoryAddress
             {
@@ -249,7 +218,7 @@ namespace Katas.Tests
 
             // Taxicab Geometry - Get to Zero!
             var result = Math.Abs(vector.X) + Math.Abs(vector.Y);
-            Console.WriteLine($"Maths: {result}");
+            Console.WriteLine($"Taxicab Distance: {result}");
 
             return result;
         }
