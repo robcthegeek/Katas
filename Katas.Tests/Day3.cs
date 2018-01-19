@@ -31,21 +31,24 @@ namespace Katas.Tests
             if (X == b.X && Y == b.Y)
                 throw new Exception("You're already there.");
 
+            var result = b;
+
             if (X == b.X)
             {
-                return (b.Y > Y)
+                result = (b.Y > Y)
                     ? new Point(X, Y + 1)
                     : new Point(X, Y - 1);
             }
-
-            if (Y == b.Y)
+            else
             {
-                return (b.X > X)
+
+                result = (b.X > X)
                     ? new Point(X + 1, Y)
                     : new Point(X - 1, Y);
             }
 
-            throw new Exception("I tried to Step and fell over, are my shoe laces tied?");
+            Console.WriteLine($"Stepping from {this} to {result}.");
+            return result;
         }
     }
 
@@ -87,7 +90,7 @@ namespace Katas.Tests
 
         public Map(int maxAddress)
         {
-            var currentAddress = new MemoryAddress(0, 0, 0);
+            var currentAddress = new MemoryAddress(1, 0, 0);
             var direction = Direction.Right;
 
             Addresses = new Dictionary<Point, MemoryAddress>
@@ -98,8 +101,11 @@ namespace Katas.Tests
             while (currentAddress.Address < maxAddress)
             {
                 var turningPoint = GetTurningPoint(currentAddress.Point, direction);
-                Console.WriteLine($"Address: {currentAddress.Address} - Current Position: {currentAddress.Point}, Turning Point: {turningPoint}");
+                Console.WriteLine($"Address: {currentAddress.Address} - Current Position: {currentAddress.Point}, Turning Point: {turningPoint}, Direction: {direction}");
                 currentAddress = Addresses.MoveFrom(currentAddress, turningPoint);
+                Console.WriteLine($"New Position: {currentAddress.Point}");
+                direction = GoingToTryDirectionMap[direction];
+                Console.WriteLine($"New Direction: {direction}");
             }
         }
 
@@ -111,13 +117,12 @@ namespace Katas.Tests
             if (currentPoint.X == 0 && currentPoint.Y == 0)
                 return new Point(1, 0);
 
-            Point result = new Point(0, 0);
+            var result = new Point(0, 0);
 
             if (trying == Direction.Up)
             {
                 var maxX = mappedPoints.Max(p => p.X);
-                result = new Point(maxX + 1, currentPoint.Y);
-                Console.WriteLine($"Trying to Move {trying.ToString()} - Moving from {currentPoint} -> {result}");
+                result = new Point(maxX +  1, currentPoint.Y);
             }
 
             if (trying == Direction.Down)
@@ -139,7 +144,7 @@ namespace Katas.Tests
             }
 
             // Make sure I've not screwed up
-            if (mappedPoints.Contains(result))
+            if (mappedPoints.Contains(result) || (result.X == 0 && result.Y == 0))
                 throw new Exception($"Turning Point {result} Already Exists");
 
             return result;
@@ -153,6 +158,7 @@ namespace Katas.Tests
             sb.AppendLine(new string('=', Title.Length));
 
             var allPoints = map.Addresses.Keys;
+            Console.WriteLine($"Point Count: {allPoints.Count}");
 
             var xMin = allPoints.Min(p => p.X);
             var xMax = allPoints.Max(p => p.X);
@@ -163,17 +169,19 @@ namespace Katas.Tests
 
             sb.AppendLine($"Map Range:: X: {xMin}-{xMax} / Y: {yMin}-{yMax}");
 
-            for (int y = yMax; y > yMin; y--)
+            for (int y = yMax; y >= yMin; y--)
             {
-                for (int x = xMin; x < xMax; x++)
+                for (int x = xMin; x <= xMax; x++)
                 {
                     var key = new Point(x, y);
                     if (!map.Addresses.ContainsKey(key))
                     {
                         Console.WriteLine($"WARN: Key Not Found for {key.X}/{key.Y}");
+                        sb.AppendFormat("{0,-" + (maxDigits + 1) + "}", new string('*', maxDigits));
                     }
                     else
                     {
+                        Console.WriteLine($"Rendering {map.Addresses[key].Address} at {key}");
                         sb.AppendFormat("{0,-" + (maxDigits + 1) + "}", map.Addresses[key].Address);
                     }
                 }
@@ -189,17 +197,27 @@ namespace Katas.Tests
     {
         internal static MemoryAddress MoveFrom(this Dictionary<Point, MemoryAddress> addresses, MemoryAddress current, Point destination)
         {
-            var step = current.Point.StepTowards(destination);
+            Console.WriteLine($"Moving From {current.Point} to {destination}.");
+            var last = current;
+            var there = false;
 
-            var result =  new MemoryAddress
+            while (!there)
             {
-                Address = current.Address + 1,
-                Point = step
-            };
+                var step = last.Point.StepTowards(destination);
+                last = new MemoryAddress
+                {
+                    Address = last.Address + 1,
+                    Point = step
+                };
 
-            addresses.Add(result.Point, result);
+                Console.WriteLine($"Adding Address {last.Address} at {last.Point}.");
+                addresses.Add(last.Point, last);
 
-            return result;
+                if (last.Point.X == destination.X && last.Point.Y == destination.Y)
+                    there = true;
+            }
+
+            return last;
         }
     }
 
@@ -218,7 +236,7 @@ namespace Katas.Tests
 
             // Taxicab Geometry - Get to Zero!
             var result = Math.Abs(vector.X) + Math.Abs(vector.Y);
-            Console.WriteLine($"Taxicab Distance: {result}");
+            Console.WriteLine($"Taxicab Distance from {vector} to {new Point(0,0)}: {result}");
 
             return result;
         }
