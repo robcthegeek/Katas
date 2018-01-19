@@ -26,9 +26,35 @@ namespace Katas.Tests
             if (direction == Direction.Up)
                 return new Point(X, Y + 1);
             if (direction == Direction.Down)
-                return new Point(X, Y- 1);
+                return new Point(X, Y - 1);
 
             throw new NotImplementedException("Where the fuck are you going?");
+        }
+
+        internal Point StepTowards(Point b)
+        {
+            // Can only go along single axis
+            if (X != b.X && Y != b.Y)
+                throw new Exception("Cannot step diagonally.");
+
+            if (X == b.X && Y == b.Y)
+                throw new Exception("You're already there.");
+
+            if (X == b.X)
+            {
+                return (b.Y > Y)
+                    ? new Point(X, Y + 1)
+                    : new Point(X, Y - 1);
+            }
+
+            if (Y == b.Y)
+            {
+                return (b.X > X)
+                    ? new Point(X + 1, Y)
+                    : new Point(X - 1, Y);
+            }
+
+            throw new Exception("I tried to Step and fell over, are my shoe laces tied?");
         }
     }
 
@@ -74,18 +100,61 @@ namespace Katas.Tests
         {
             _maxAddress = maxAddress;
 
-            Addresses = new Dictionary<Point, MemoryAddress>();
-
-            // Draw this thing somehow :)
-            var currentPoint = new Point(0, 0);
+            var currentAddress = new MemoryAddress(0, 0, 0);
             var direction = Direction.Right;
 
-            for (uint i = 1; i <= maxAddress; i++)
+            Addresses = new Dictionary<Point, MemoryAddress>
             {
-                Addresses.Add(currentPoint, new MemoryAddress(i, currentPoint));
-                direction = GoSpirograph(currentPoint, direction);
-                currentPoint = currentPoint.Move(direction);
+                { currentAddress.Point, currentAddress }
+            };
+
+            while (currentAddress.Address < maxAddress)
+            {
+                var turningPoint = GetTurningPoint(currentAddress.Point, direction);
+                currentAddress = Addresses.MoveFrom(currentAddress, turningPoint);
             }
+        }
+
+        private Point GetTurningPoint(Point currentPoint, Direction direction)
+        {
+            // e.g. If going up, trying to go left - I can just find the highest 'Y' on the current 'X' and add 1
+            var trying = GoingToTryDirectionMap[direction];
+            var mappedPoints = Addresses.Keys;
+
+            if (!mappedPoints.Any())
+                return new Point(1, 0);
+
+            Point result = new Point(0, 0);
+
+            if (trying == Direction.Up)
+            {
+                var maxX = mappedPoints.Max(p => p.X);
+                result = new Point(maxX + 1, currentPoint.Y);
+            }
+
+            if (trying == Direction.Down)
+            {
+                var minX = mappedPoints.Min(p => p.X);
+                result = new Point(minX - 1, currentPoint.Y);
+            }
+
+            if (trying == Direction.Left)
+            {
+                var maxY = mappedPoints.Max(p => p.Y);
+                result = new Point(currentPoint.X, maxY + 1);
+            }
+
+            if (trying == Direction.Right)
+            {
+                var minY = mappedPoints.Min(p => p.Y);
+                result = new Point(currentPoint.X, minY - 1);
+            }
+
+            // Make sure I've not screwed up
+            if (mappedPoints.Contains(result))
+                throw new Exception($"Turning Point {result.X}/{result.Y} Already Exists");
+
+            return result;
         }
 
         private Direction GoSpirograph(Point location, Direction currentDirection)
@@ -143,18 +212,37 @@ namespace Katas.Tests
             }
 
             return sb.ToString();
-            //return "Disabled";
+        }
+    }
+
+    internal static class DictionaryExtensions
+    {
+        internal static MemoryAddress MoveFrom(this Dictionary<Point, MemoryAddress> addresses, MemoryAddress current, Point b)
+        {
+            // TODO: Add to addresses as we go...
+            var step = current.Point.StepTowards(b);
+
+            var result =  new MemoryAddress
+            {
+                Address = current.Address + 1,
+                Point = step
+            };
+
+            addresses.Add(result.Point, result);
+
+            return result;
         }
     }
 
     [TestFixture]
     public class Day3
     {
-        private int Solve(int address)
+        private int Solve(int address, bool output = true)
         {
             var map = new Map(address);
 
-            Console.WriteLine(map);
+            if (output)
+                Console.WriteLine(map);
 
             // Get Vector for Address
             var vector = map.Addresses.Values.Single(ma => ma.Address == address).Point;
@@ -178,12 +266,14 @@ namespace Katas.Tests
         }
 
         [Test]
-        //[Ignore("WIP")]
+        [Ignore("WIP")]
         public void Solve_ChallengeInput_Produces_WinningResult()
         {
-            var solution = Solve(289326);
+            var solution = Solve(289326, output: false);
 
             Console.WriteLine($"Solution is... (drum roll): {solution}");
+
+            Assert.That(solution, Is.EqualTo(419));
         }
     }
 }
