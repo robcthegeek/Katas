@@ -253,13 +253,14 @@ namespace Katas.Tests
         }
 
         [Test]
-        [Ignore("WIP")]
+        //[Ignore("WIP")]
         public void Solve_ChallengeInput_Produces_WinningResult()
         {
             var solution = Solve(289326, output: false);
 
             Console.WriteLine($"Solution is... (drum roll): {solution}");
 
+            // Calc Time - ~28 Seconds
             Assert.That(solution, Is.EqualTo(419));
         }
     }
