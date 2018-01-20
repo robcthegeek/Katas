@@ -144,6 +144,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Day5.cs" />
+    <Compile Include="Day4.cs" />
     <Compile Include="Day3.cs" />
     <Compile Include="Day2.cs" />
     <Compile Include="Day1.cs" />
