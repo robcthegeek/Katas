@@ -17,7 +17,8 @@ namespace Katas.Tests
             while (pointer >= 0 && pointer < array.Length)
             {
                 var current = array[pointer];
-                array[pointer] = array[pointer] + 1;
+                var newValue = current >= 3 ? current - 1 : current + 1;
+                array[pointer] = newValue;
                 pointer += current;
                 steps++;
             }
@@ -25,7 +26,7 @@ namespace Katas.Tests
             return steps;
         }
 
-        [TestCase("0,3,0,1,-3", 5)]
+        [TestCase("0,3,0,1,-3", 10)]
         public void Examples_Return_Expected(string instructions, int expected)
         {
             var solution = Solve(instructions.Split(','));
