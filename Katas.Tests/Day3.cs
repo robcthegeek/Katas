@@ -26,9 +26,22 @@ namespace Katas.Tests
             if (direction == Direction.Up)
                 return new Point(X, Y + 1);
             if (direction == Direction.Down)
-                return new Point(X, Y- 1);
+                return new Point(X, Y - 1);
+            if (direction == Direction.UpLeft)
+                return new Point(X - 1, Y + 1);
+            if (direction == Direction.UpRight)
+                return new Point(X + 1, Y + 1);
+            if (direction == Direction.DownLeft)
+                return new Point(X - 1, Y - 1);
+            if (direction == Direction.DownRight)
+                return new Point(X + 1, Y - 1);
 
             throw new NotImplementedException("Where the fuck are you going?");
+        }
+
+        public override string ToString()
+        {
+            return $"({X},{Y})";
         }
     }
 
@@ -50,16 +63,18 @@ namespace Katas.Tests
 
     public enum Direction
     {
-        Up,     // Moving X=, Y+
-        Down,   // Moving X=, Y-
-        Left,   // Moving X-, Y=
-        Right   // Moving X+, Y=
+        Up,
+        Down,
+        Left,
+        Right,
+        UpLeft,
+        UpRight,
+        DownRight,
+        DownLeft
     }
 
     public class Map
     {
-        private readonly int _maxAddress;
-
         private static readonly Dictionary<Direction, Direction> GoingToTryDirectionMap = new Dictionary<Direction, Direction>()
         {
             { Direction.Right, Direction.Up },
@@ -70,22 +85,66 @@ namespace Katas.Tests
 
         internal Dictionary<Point, MemoryAddress> Addresses { get; private set; }
 
-        public Map(int maxAddress)
-        {
-            _maxAddress = maxAddress;
+        public uint Seeking { get; private set; }
+        public uint FirstValueLargerThanSeeking { get; private set; }
 
+        public Map(uint seeking)
+        {
+            Seeking = seeking;
             Addresses = new Dictionary<Point, MemoryAddress>();
 
-            // Draw this thing somehow :)
             var currentPoint = new Point(0, 0);
             var direction = Direction.Right;
+            uint sumNeighbours = 0;
 
-            for (uint i = 1; i <= maxAddress; i++)
+            while (sumNeighbours <= seeking)
             {
-                Addresses.Add(currentPoint, new MemoryAddress(i, currentPoint));
+                if (currentPoint.X == 0 && currentPoint.Y == 0)
+                    sumNeighbours = 1;
+                else
+                    sumNeighbours = SumNeighbours(currentPoint);
+
+                Addresses.Add(currentPoint, new MemoryAddress(sumNeighbours, currentPoint));
+
+                if (sumNeighbours > seeking)
+                {
+                    FirstValueLargerThanSeeking = sumNeighbours;
+                    break;
+                }
+
                 direction = GoSpirograph(currentPoint, direction);
                 currentPoint = currentPoint.Move(direction);
             }
+        }
+
+        private uint SumNeighbours(Point point)
+        {
+            var neighbourPoints = new[]
+            {
+                point.Move(Direction.Up),
+                point.Move(Direction.Down),
+                point.Move(Direction.Left),
+                point.Move(Direction.Right),
+                point.Move(Direction.UpLeft),
+                point.Move(Direction.UpRight),
+                point.Move(Direction.DownLeft),
+                point.Move(Direction.DownRight)
+            };
+
+            Console.WriteLine($"Neighbour Points to {point}: {string.Join(", ", neighbourPoints.Select(p => p))}");
+
+
+            var neighbours = Addresses
+                .Where(kvp => neighbourPoints.Contains(kvp.Key));
+
+            Console.WriteLine($"Placed Neighbours to {point}: {string.Join(", ", neighbours.Select(kvp => kvp.Key))}");
+
+            var sum = neighbours
+                .Sum(kvp => kvp.Value.Address);
+
+            Console.WriteLine($"Sum of Neighbours of {point}: {sum}");
+
+            return (uint)sum;
         }
 
         private Direction GoSpirograph(Point location, Direction currentDirection)
@@ -109,9 +168,9 @@ namespace Katas.Tests
         public static implicit operator string(Map map)
         {
             var sb = new StringBuilder();
-            const string Title = "CRAZY FUCKING MAP CHALLENGE";
-            sb.AppendLine(Title);
-            sb.AppendLine(new string('=', Title.Length));
+            const string title = "CRAZY FUCKING MAP CHALLENGE";
+            sb.AppendLine(title);
+            sb.AppendLine(new string('=', title.Length));
 
             var allPoints = map.Addresses.Keys;
 
@@ -122,11 +181,11 @@ namespace Katas.Tests
 
             int maxDigits = map.Addresses.Values.Max(address => address.Address).ToString().Length;
 
-            sb.AppendLine($"Map Range:: X: {xMin}-{xMax} / Y: {yMin}-{yMax}");
+            sb.AppendLine($"Seeking: {map.Seeking} || Grid: {xMin}-{xMax} / {yMin}-{yMax} || {allPoints.Count} Point(s) Mapped");
 
-            for (int y = yMax; y > yMin; y--)
+            for (int y = yMax; y >= yMin; y--)
             {
-                for (int x = xMin; x < xMax; x++)
+                for (int x = xMin; x <= xMax; x++)
                 {
                     var key = new Point(x, y);
                     if (!map.Addresses.ContainsKey(key))
@@ -150,31 +209,25 @@ namespace Katas.Tests
     [TestFixture]
     public class Day3
     {
-        private int Solve(int address)
+        private uint Solve(uint seeking)
         {
-            var map = new Map(address);
+            var map = new Map(seeking);
 
             Console.WriteLine(map);
 
-            // Get Vector for Address
-            var vector = map.Addresses.Values.Single(ma => ma.Address == address).Point;
-
-            // Taxicab Geometry - Get to Zero!
-            var result = Math.Abs(vector.X) + Math.Abs(vector.Y);
-            Console.WriteLine($"Maths: {result}");
-
-            return result;
+            return map.FirstValueLargerThanSeeking;
         }
 
-        [TestCase(1, 0)]
-        [TestCase(12, 3)]
-        [TestCase(23, 2)]
-        [TestCase(1024, 31)]
-        public void Solve_SampleSpreadsheet_Produces_Expected(int address, int expectedSteps)
+        [TestCase(1, 2)]
+        [TestCase(3, 4)]
+        [TestCase(24, 25)]
+        [TestCase(55, 57)]
+        [TestCase(332, 351)]
+        public void Solve_SampleSpreadsheet_Produces_Expected(int seeking, int expectedValue)
         {
-            var solution = Solve(address);
+            var solution = Solve((uint)seeking);
 
-            Assert.That(solution, Is.EqualTo(expectedSteps));
+            Assert.That(solution, Is.EqualTo((uint)expectedValue));
         }
 
         [Test]
