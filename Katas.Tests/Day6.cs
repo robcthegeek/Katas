@@ -70,6 +70,14 @@ namespace Katas.Tests
                 blocks--;
             } while (blocks > 0);
         }
+
+        public void EraseMemory(params string[] except)
+        {
+            if (except.Length == 0)
+                _memory.Clear();
+            else
+                _memory.RemoveWhere(s => !except.Contains(s));
+        }
     }
 
     [TestFixture]
@@ -84,13 +92,14 @@ namespace Katas.Tests
         private uint Solve(int[] configuration)
         {
             var banks = new MemoryBanks(configuration);
+            banks.Reallocate();
+            banks.EraseMemory(banks.Configuration);
+            var loopSize = banks.Reallocate();
 
-            var cycles = banks.Reallocate();
-
-            return cycles;
+            return loopSize;
         }
 
-        [TestCase("0,2,7,0", 5)]
+        [TestCase("0,2,7,0", 4)]
         public void Examples_Return_Expected(string memoryBanks, int expected)
         {
             var solution = Solve(memoryBanks.Split(','));
@@ -99,7 +108,7 @@ namespace Katas.Tests
         }
 
         [Test]
-        //[Ignore("YOLO")]
+        [Ignore("YOLO")]
         public void ChallengeInput_Produces_WinningResult()
         {
             var solution = Solve("4,1,15,12,0,9,9,5,5,8,7,3,14,5,12,3".Split(','));
