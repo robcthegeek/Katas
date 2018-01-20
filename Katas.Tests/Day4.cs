@@ -21,20 +21,27 @@ namespace Katas.Tests
 
             foreach (var phrase in list)
             {
-                var words = regex.Matches(phrase);
-                var uniqueWords = words.Cast<Match>().Select(m => m.Value).Distinct().Count();
-                Console.WriteLine($"Phrase: '{phrase}' - Words: {words.Count}, Unique: {uniqueWords}");
+                var words = regex.Matches(phrase).Cast<Match>().ToList();
+                var alphaSortedWords = words
+                    .Select(m => string.Concat(m.Value.OrderBy(c => c)))
+                    .Distinct()
+                    .Count();
 
-                if (words.Count == uniqueWords)
+
+                if (words.Count == alphaSortedWords)
+                {
+                    Console.WriteLine($"Phrase Valid: '{phrase}' - Words: {words.Count}, Unique: {alphaSortedWords}");
                     validCount++;
+                }
             }
 
             return (uint)validCount;
         }
 
-        [TestCase("aa bb cc dd ee", 1)]
-        [TestCase("aa bb cc dd aa", 0)]
-        [TestCase("aa bb cc dd ee\raa bb cc dd aaa", 2)]
+        [TestCase("abcde fghij", 1)]
+        [TestCase("abcde xyz ecdab", 0)]
+        [TestCase("a ab abc abd abf abj", 1)]
+        [TestCase("iiii oiii ooii oooi oooo\roiii ioii iioi iiio", 1)]
         public void Solve_SamplePhrases_Returns_Expected(string phrases, int expectedValidCount)
         {
             var solution = Solve(phrases.Split('\r'));
