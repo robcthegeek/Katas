@@ -1,8 +1,5 @@
 using System;
 using System.Linq;
-using System.IO;
-using System.Text;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
@@ -42,40 +39,42 @@ public static class War
             new Queue<Card>(p2Deck.Select(s => new Card(s)))
         };
 
+        var p1Played = new Queue<Card>();
+        var p2Played = new Queue<Card>();
+
         while (decks[0].Any() || decks[1].Any())
         {
             rounds++;
 
             // Battle
             var p1 = decks[0].Dequeue();
+            p1Played.Enqueue(p1);
             var p2 = decks[1].Dequeue();
+            p2Played.Enqueue(p2);
 
             if (p1 > p2)
             {
-                decks[0].Enqueue(p1);
-                decks[0].Enqueue(p2);
+                AddCardsToDeck(decks[0], p1Played, p2Played);
             }
 
             if (p2 > p1)
             {
-                decks[1].Enqueue(p1);
-                decks[1].Enqueue(p2);
+                AddCardsToDeck(decks[1], p1Played, p2Played);
             }
 
             if (p2 == p1)
             {
-                throw new NotImplementedException("WAR!");
-
-                // First, both players place the three next cards of their pile face down.
+                // Dequeue WAR! Cards
                 for (int i = 0; i < 3; i++)
                 {
-                    var wp1 = decks[0].Dequeue();
-                    var w2 = decks[1].Dequeue();
+                    p1Played.Enqueue(decks[0].Dequeue());
+                    p2Played.Enqueue(decks[1].Dequeue());
+
+                    // TODO: If a player runs out of cards during a "war" (when giving up the three cards or when doing the battle), then the game ends and both players are placed equally first.
+                    if (!decks[0].Any() || !decks[1].Any()) return "PAT";
                 }
 
-                // Then they go back to step 1 to decide who is going to win the war (several "wars" can be chained).
-
-                // As soon as a player wins a "war", the winner adds all the cards from the "war" to their deck.
+                rounds--; // Wars don't close the round
             }
 
             // Player Won?
@@ -83,7 +82,20 @@ public static class War
             if (!decks[1].Any()) return $"1 {rounds}";
         }
 
-        return "PAT";
+        throw new Exception("I BROKE!");
+    }
+
+    private static void AddCardsToDeck(Queue<Card> deck, Queue<Card> p1Cards, Queue<Card> p2Cards)
+    {
+        while (p1Cards.Count > 0)
+        {
+            deck.Enqueue(p1Cards.Dequeue());
+        }
+
+        while (p2Cards.Count > 0)
+        {
+            deck.Enqueue(p2Cards.Dequeue());
+        }
     }
 }
 
