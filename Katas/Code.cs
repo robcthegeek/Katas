@@ -1,11 +1,6 @@
 using System;
 using System.Linq;
-using System.IO;
-using System.Text;
-using System.Collections;
 using System.Collections.Generic;
-
-// Don't Panic! https://www.codingame.com/ide/puzzle/don't-panic-episode-1
 
 class Player
 {
@@ -14,8 +9,7 @@ class Player
         var input = Console.ReadLine();
         var initState = new InitState(input);
 
-        Enumerable.Range(0, initState.NumElevators)
-            .ToList()
+        Enumerable.Range(0, initState.NumElevators).ToList()
             .ForEach(i => initState.AddElevator(Console.ReadLine()));
 
         var panic = new DontPanic(initState);
