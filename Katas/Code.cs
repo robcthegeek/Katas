@@ -22,6 +22,7 @@ public class Solution
     {
         var best = -1;
         var losses = -1;
+        var worstLoss = -1;
 
         for (int i = 0; i < values.Length; i++)
         {
@@ -35,10 +36,12 @@ public class Solution
             else
             {
                 losses = best - v;
+
+                if (losses > worstLoss) worstLoss = losses;
             }
         }
 
-        var result = losses > 0 ? 0 - losses : 0;
+        var result = worstLoss > 0 ? 0 - worstLoss : 0;
         return result;
     }
 }
