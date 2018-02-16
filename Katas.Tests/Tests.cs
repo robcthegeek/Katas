@@ -50,12 +50,4 @@ namespace Katas.Tests
             Assert.AreEqual(-3, result);
         }
     }
-
-    internal static class Extensions
-    {
-        internal static int[] ToIntArray(this string input)
-        {
-            return input.Split(' ').Select(int.Parse).ToArray();
-        }
-    }
 }
