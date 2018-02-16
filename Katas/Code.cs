@@ -9,7 +9,7 @@ using System.Collections.Generic;
  * Auto-generated code below aims at helping you parse
  * the standard input according to the problem statement.
  **/
-class Solution
+public class Solution
 {
     static void Main(string[] args)
     {
@@ -38,5 +38,29 @@ class Solution
 
         var result = losses > 0 ? 0 - losses : 0;
         Console.WriteLine($"{result}");
+    }
+
+    public static int Solve(int[] values)
+    {
+        var best = -1;
+        var losses = -1;
+
+        for (int i = 0; i < values.Length; i++)
+        {
+            int v = values[i];
+
+            if (v >= best)
+            {
+                best = v;
+                //losses = 0;
+            }
+            else
+            {
+                losses = best - v;
+            }
+        }
+
+        var result = losses > 0 ? 0 - losses : 0;
+        return result;
     }
 }
