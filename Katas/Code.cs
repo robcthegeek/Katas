@@ -33,11 +33,11 @@ class Player
 
     public class DontPanic
     {
-        private readonly InitState state;
+        private readonly InitState _state;
 
         public DontPanic(InitState state)
         {
-            this.state = state;
+            _state = state;
         }
 
         public string Next(int cloneFloor, int clonePos, string direction)
@@ -45,19 +45,29 @@ class Player
             if (direction == Direction.None)
                 return Action.Wait;
 
-            var targetPos = state.ExitFloor == cloneFloor
-                ? state.ExitPosition
-                : state.Elevators.Single(x => x.Floor == cloneFloor).Position;
+            var targetPos = _state.ExitFloor == cloneFloor
+                ? _state.ExitPosition
+                : _state.Elevators.Single(x => x.Floor == cloneFloor).Position;
 
-            return GoingRightWay(direction, clonePos, targetPos)
-                ? Action.Wait
-                : Action.Block;
+            if (GoingRightWay(direction, clonePos, targetPos))
+                return Action.Wait;
+
+            if (GoingWrongWay(direction, clonePos, targetPos))
+                return Action.Block;
+
+            return Action.Wait;
         }
 
         private bool GoingRightWay(string direction, int clonePos, int targetPos)
         {
             return direction == Direction.Left && targetPos < clonePos ||
                    direction == Direction.Right && targetPos > clonePos;
+        }
+
+        private bool GoingWrongWay(string direction, int clonePos, int targetPos)
+        {
+            return direction == Direction.Left && targetPos > clonePos ||
+                   direction == Direction.Right && targetPos < clonePos;
         }
     }
 }
