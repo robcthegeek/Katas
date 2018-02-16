@@ -20,24 +20,22 @@ public class Solution
 
     public static int Solve(int[] values)
     {
-        var best = -1;
-        var losses = -1;
+        var highestPrice = -1;
         var worstLoss = -1;
+
+        values.Aggregate()
 
         for (int i = 0; i < values.Length; i++)
         {
             int v = values[i];
 
-            if (v >= best)
+            if (v >= highestPrice)
             {
-                best = v;
-                losses = 0;
+                highestPrice = v;
             }
             else
             {
-                losses = best - v;
-
-                if (losses > worstLoss) worstLoss = losses;
+                if (highestPrice - v > worstLoss) worstLoss = highestPrice - v;
             }
         }
 
