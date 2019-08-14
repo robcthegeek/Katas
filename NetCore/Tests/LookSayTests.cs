@@ -9,10 +9,14 @@ namespace Tests
     [TestFixture]
     public class LookSayTests
     {
-        [Test]
-        public void Test()
+        [TestCase(1U, "11")]
+        [TestCase(11U, "21")]
+        [TestCase(21U, "1211")]
+        [TestCase(1211U, "111221")]
+        [TestCase(111221U, "312211")]
+        public void ReturnsDigitOutput(uint input, string expected)
         {
-            Assert.Null(LookSay.Next(0));
+            Assert.AreEqual(expected, LookSay.Digits(input));
         }
     }
 }
