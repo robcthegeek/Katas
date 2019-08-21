@@ -33,5 +33,13 @@ namespace Tests
         {
             Assert.AreEqual(hand, RockPaperScissors.Play(hand, hand));
         }
+
+        [TestCase(Hand.Rock, Hand.Scissors, "rock blunts scissors")]
+        [TestCase(Hand.Paper, Hand.Rock, "paper covers rock")]
+        [TestCase(Hand.Scissors, Hand.Paper, "scissors cut paper")]
+        public void Outputs_Text_Answer(Hand a, Hand b, string expected)
+        {
+            Assert.AreEqual(expected, RockPaperScissors.Text(a, b));
+        }
     }
 }
