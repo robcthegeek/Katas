@@ -9,10 +9,10 @@ namespace Tests
     [TestFixture]
     public class RockPaperScissorsTests
     {
-        [TestCase(Hand.Rock, Hand.Scissors)]
-        [TestCase(Hand.Paper, Hand.Rock)]
-        [TestCase(Hand.Scissors, Hand.Paper)]
-        public void Correct_Winner_Returned(Hand winner, Hand loser)
+        [TestCase(RockPaperScissorsHand.Rock, RockPaperScissorsHand.Scissors)]
+        [TestCase(RockPaperScissorsHand.Paper, RockPaperScissorsHand.Rock)]
+        [TestCase(RockPaperScissorsHand.Scissors, RockPaperScissorsHand.Paper)]
+        public void Correct_Winner_Returned(RockPaperScissorsHand winner, RockPaperScissorsHand loser)
         {
             Assert.AreEqual(winner, RockPaperScissors.Play(winner, loser));
         }
@@ -20,32 +20,32 @@ namespace Tests
         [Test]
         public void Determines_Correct_Player()
         {
-            var p1 = RockPaperScissors.Play(Hand.Scissors, Hand.Paper);
-            var p2 = RockPaperScissors.Play(Hand.Paper, Hand.Scissors);
+            var p1 = RockPaperScissors.Play(RockPaperScissorsHand.Scissors, RockPaperScissorsHand.Paper);
+            var p2 = RockPaperScissors.Play(RockPaperScissorsHand.Paper, RockPaperScissorsHand.Scissors);
 
-            Assert.That(p1 == Hand.Scissors && p2 == Hand.Scissors, "Correct winner is not both sides.");
+            Assert.That(p1 == RockPaperScissorsHand.Scissors && p2 == RockPaperScissorsHand.Scissors, "Correct winner is not both sides.");
         }
 
-        [TestCase(Hand.Rock)]
-        [TestCase(Hand.Paper)]
-        [TestCase(Hand.Scissors)]
-        public void Draw_Returns_Same_Hand(Hand hand)
+        [TestCase(RockPaperScissorsHand.Rock)]
+        [TestCase(RockPaperScissorsHand.Paper)]
+        [TestCase(RockPaperScissorsHand.Scissors)]
+        public void Draw_Returns_Same_Hand(RockPaperScissorsHand hand)
         {
             Assert.AreEqual(hand, RockPaperScissors.Play(hand, hand));
         }
 
-        [TestCase(Hand.Rock, Hand.Scissors, "rock blunts scissors")]
-        [TestCase(Hand.Paper, Hand.Rock, "paper covers rock")]
-        [TestCase(Hand.Scissors, Hand.Paper, "scissors cut paper")]
-        public void Outputs_Text_Answer(Hand a, Hand b, string expected)
+        [TestCase(RockPaperScissorsHand.Rock, RockPaperScissorsHand.Scissors, "rock blunts scissors")]
+        [TestCase(RockPaperScissorsHand.Paper, RockPaperScissorsHand.Rock, "paper covers rock")]
+        [TestCase(RockPaperScissorsHand.Scissors, RockPaperScissorsHand.Paper, "scissors cut paper")]
+        public void Outputs_Text_Answer(RockPaperScissorsHand a, RockPaperScissorsHand b, string expected)
         {
             Assert.AreEqual(expected, RockPaperScissors.Text(a, b));
         }
 
-        [TestCase(Hand.Rock, Hand.Scissors, "🗿 blunts ✂")]
-        [TestCase(Hand.Paper, Hand.Rock, "📄 covers 🗿")]
-        [TestCase(Hand.Scissors, Hand.Paper, "✂ cut 📄")]
-        public void Outputs_Emoji_Answer(Hand a, Hand b, string expected)
+        [TestCase(RockPaperScissorsHand.Rock, RockPaperScissorsHand.Scissors, "🗿 blunts ✂")]
+        [TestCase(RockPaperScissorsHand.Paper, RockPaperScissorsHand.Rock, "📄 covers 🗿")]
+        [TestCase(RockPaperScissorsHand.Scissors, RockPaperScissorsHand.Paper, "✂ cut 📄")]
+        public void Outputs_Emoji_Answer(RockPaperScissorsHand a, RockPaperScissorsHand b, string expected)
         {
             Assert.AreEqual(expected, RockPaperScissors.Emoji(a, b));
         }
