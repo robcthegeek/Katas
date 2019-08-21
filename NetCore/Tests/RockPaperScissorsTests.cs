@@ -41,5 +41,13 @@ namespace Tests
         {
             Assert.AreEqual(expected, RockPaperScissors.Text(a, b));
         }
+
+        [TestCase(Hand.Rock, Hand.Scissors, "🗿 blunts ✂")]
+        [TestCase(Hand.Paper, Hand.Rock, "📄 covers 🗿")]
+        [TestCase(Hand.Scissors, Hand.Paper, "✂ cut 📄")]
+        public void Outputs_Emoji_Answer(Hand a, Hand b, string expected)
+        {
+            Assert.AreEqual(expected, RockPaperScissors.Emoji(a, b));
+        }
     }
 }

@@ -26,17 +26,26 @@ namespace Katas
             {Hand.Scissors, "cut"}
         };
 
-        private static bool Beats(this Hand a, Hand b) => _beats[a] == b;
-
-        public static Hand Play(Hand p1, Hand p2)
+        private static readonly Dictionary<Hand, string> _emoji = new Dictionary<Hand, string>
         {
-            return p1.Beats(p2) ? p1 : p2;
-        }
+            {Hand.Rock, "🗿"},
+            {Hand.Paper, "📄"},
+            {Hand.Scissors, "✂"}
+        };
+
+        public static Hand Play(Hand a, Hand b) => WinnerAndLoser(a, b).winner;
 
         public static string Text(Hand a, Hand b)
         {
-            var (winner, loser) = a.Beats(b) ? (a, b) : (b, a);
+            var (winner, loser) = WinnerAndLoser(a, b);
             return $"{winner} {_winText[winner]} {loser}".ToLowerInvariant();
         }
+        public static string Emoji(Hand a, Hand b)
+        {
+            var (winner, loser) = WinnerAndLoser(a, b);
+            return $"{_emoji[winner]} {_winText[winner]} {_emoji[loser]}".ToLowerInvariant();
+        }
+
+        private static (Hand winner, Hand loser) WinnerAndLoser(Hand a, Hand b) => _beats[a] == b ? (a, b) : (b, a);
     }
 }
