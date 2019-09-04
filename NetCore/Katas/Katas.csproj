@@ -4,12 +4,4 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Animals.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Animals.txt" />
-  </ItemGroup>
-
 </Project>

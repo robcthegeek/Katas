@@ -1,60 +1,83 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 
 namespace Katas
 {
-    public class LowercaseString
+    public class PokerFace
     {
-        private readonly string _value;
 
-        public LowercaseString(string value)
-        {
-            /* People may find this strange, but makes the code cleaner - and also
-             * prevents people from doing things like:
-             *
-             *  var lower = "I LIED"
-             */
-            _value = value?.ToLowerInvariant();
-        }
-
-        public static implicit operator string(LowercaseString lcs) => lcs._value;
-        public static implicit operator LowercaseString(string value) => new LowercaseString(value);
     }
 
-    public class Animalia
+    public class Deck
     {
-        private readonly List<string> _said = new List<string>();
-        private string _previous;
-        private readonly IEnumerable<string> _animalList;
+        public int Count => _cards.Count;
 
-        public Animalia(IEnumerable<string> animalList)
+        private readonly List<Card> _cards = new List<Card>(52);
+
+        public IReadOnlyList<Card> Cards => new ReadOnlyCollection<Card>(_cards);
+
+        public Deck()
         {
-            _animalList = animalList?
-                .Select(x => x.ToLowerInvariant())
-                .ToArray();
-        }
+            // EW EW EW EW EW EW EW EW!
+            var suits = new[] { "H", "C", "D", "S" };
+            var numbers = new[] { "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" };
 
-        public bool Say(LowercaseString input) {
-            string animal = input;
-
-            if (!_animalList.Contains(animal) || _said.Contains(animal)) return false;
-
-            if (_previous.IsNotSet() || animal.FirstLetter() == _previous.LastLetter())
+            foreach (var suit in suits)
             {
-                _said.Add(animal);
-                _previous = input;
-                return true;
-            };
+                foreach (var number in numbers)
+                {
+                    _cards.Add(new Card($"{number}{suit}"));
+                }
+            }
+        }
 
-            return false;
+        public Card Draw()
+        {
+            var card = _cards[0];
+            _cards.RemoveAt(0);
+            return card;
+        }
+        public Hand DrawHand()
+        {
+            var cards = new List<Card>();
+            for (int i = 0; i < 5; i++)
+            {
+                cards.Add(Draw());
+            }
+            return new Hand(cards.ToArray());
         }
     }
 
-    internal static class Extensions
+    public class Hand : Collection<Card>
     {
-        internal static char FirstLetter(this string value) => value[0];
-        internal static char LastLetter(this string value) => string.IsNullOrWhiteSpace(value) ? default : value[value.Length - 1];
-        internal static bool IsNotSet(this string value) => string.IsNullOrWhiteSpace(value);
+        public int Rank { get; } = 1;
+
+        public Hand(Card[] cards)
+        {
+            foreach (var card in cards)
+            {
+                Add(card);
+            }
+        }
+    }
+
+    public struct Card
+    {
+        static readonly Regex Matcher = new Regex(@"(?<number>([AJQK]|\d{1,2}))(?<suit>[SCDH])");
+        public string Suit { get; }
+        public string Number { get; }
+        public string Value { get; }
+
+        public Card(string value)
+        {
+            var match = Matcher.Match(value);
+            Suit = match.Groups["suit"].Value;
+            Number = match.Groups["number"].Value;
+            Value = value;
+        }
     }
 }
