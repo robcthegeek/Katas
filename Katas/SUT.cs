@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Katas
 {
@@ -10,7 +11,7 @@ namespace Katas
 
             var rolls = scoreCard.Split(' ');
 
-            var frames = Parse(scoreCard);
+            Parse(scoreCard);
 
             if (rolls.Length == 12)
             {
@@ -28,7 +29,7 @@ namespace Katas
 
             for (int i = 0; i < rolls.Length; i += 2)
             {
-                frames.Add(new Frame(rolls[i], rolls[i + 1]));
+                frames.Add(new Frame(rolls[i]));
             }
 
             return frames;
@@ -43,12 +44,35 @@ namespace Katas
 
         public Game(string scoreCard)
         {
-            var rolls = scoreCard.Split(' ');
+            var frames = scoreCard.Split(' ');
 
-            for (int i = 0; i < rolls.Length; i += 2)
+            for (int i = 0; i < frames.Length; i ++)
             {
-                Frames.Add(new Frame(rolls[i], rolls[i + 1]));
+                Frames.Add(new Frame(frames[i]));
             }
+
+            var (incorrect, expected) = IncorrectCount(Frames);
+            if (incorrect) throw new IncorrectNumberOfFramesException(expected, Frames.Count);
+        }
+
+        private (bool incorrect, int expected) IncorrectCount(List<Frame> frames)
+        {
+            if (frames.Count < 10 || frames.Count > 12) return (true, 10); // obvs incorrect.
+
+            if (frames[9].Bonus == Bonus.Strike)
+            {
+                // 11 AND 12 can be strikes
+                if (frames[10].Bonus == Bonus.Strike)
+                {
+                    return (frames.Count != 12, 12);
+                }
+
+                return (frames.Count != 11, 11);
+            }
+
+            if (frames[9].Bonus != Bonus.None) return (frames.Count != 11, 11);
+
+            return (false, 10);
         }
 
         int CalculateScore()
@@ -79,17 +103,17 @@ namespace Katas
         public Bonus Bonus { get; set; }
         public bool HasBonus => Bonus != Bonus.None;
 
-        public Frame(string score1, string score2)
+        public Frame(string frame)
         {
-            int TryParse(string score)
+            int TryParse(char @char)
             {
-                int.TryParse(score, out var i);
+                int.TryParse(@char.ToString(), out var i);
                 return i;
             }
 
+            var score1 = frame[0];
+
             Roll1 = TryParse(score1);
-            Roll2 = TryParse(score2);
-            Total = Roll1 + Roll2;
 
             if (score1 == Specials.STRIKE)
             {
@@ -98,13 +122,21 @@ namespace Katas
                 Total = 10;
                 Bonus = Bonus.Strike;
             }
-
-            if (score2 == Specials.SPARE)
+            else
             {
-                Roll2 = 10 - Roll1;
-                Total = 10;
-                Bonus = Bonus.Spare;
+                var score2 = frame[1];
+
+                Roll2 = TryParse(score2);
+
+                if (score2 == Specials.SPARE)
+                {
+                    Roll2 = 10 - Roll1;
+                    Total = 10;
+                    Bonus = Bonus.Spare;
+                }
             }
+
+            Total = Roll1 + Roll2;
         }
 
         public int BonusValue(Bonus bonus)
@@ -121,8 +153,8 @@ namespace Katas
 
     static class Specials
     {
-        internal const string STRIKE = "X";
-        internal const string SPARE = "/";
+        internal const char STRIKE = 'X';
+        internal const char SPARE = '/';
     }
 
     enum Bonus
@@ -130,5 +162,16 @@ namespace Katas
         None,
         Spare,
         Strike
+    }
+
+    public class IncorrectNumberOfFramesException : Exception
+    {
+        static string CreateMessage(int expected, int actual) =>
+            $"Incorrect number of frames - expected {expected}, actual: {actual}";
+
+        public IncorrectNumberOfFramesException(int expected, int actual) : base(CreateMessage(expected, actual))
+        {
+
+        }
     }
 }

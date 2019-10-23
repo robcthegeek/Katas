@@ -20,11 +20,16 @@ namespace KataTests
         */
 
         [Fact]
-        public void ten_misses_returns_0()
+        public void games_have_10_frames()
         {
-            var frames = "- - - - - - - - - -";
+            Assert.Throws<IncorrectNumberOfFramesException>(
+                () => BowlingGame.Score("12"));
+        }
 
-            var score = BowlingGame.Score(frames);
+        [Fact]
+        public void ten_missed_frames_returns_0()
+        {
+            var score = BowlingGame.Score("-- -- -- -- -- -- -- -- -- --");
 
             Assert.Equal(0, score);
         }
@@ -32,9 +37,7 @@ namespace KataTests
         [Fact]
         public void twelve_strikes_returns_300()
         {
-            var frames = "X X X X X X X X X X X X";
-
-            var score = BowlingGame.Score(frames);
+            var score = BowlingGame.Score("X X X X X X X X X X X X");
 
             Assert.Equal(300, score);
         }
@@ -42,9 +45,7 @@ namespace KataTests
         [Fact]
         public void ten_singles_returns_10()
         {
-            var frames = "1 1 1 1 1 1 1 1 1 1";
-
-            var score = BowlingGame.Score(frames);
+            var score = BowlingGame.Score("1- 1- 1- 1- 1- 1- 1- 1- 1- 1-");
 
             Assert.Equal(10, score);
         }
@@ -52,8 +53,7 @@ namespace KataTests
         [Fact]
         public void first_frame_spare_adds_next_roll()
         {
-            var frames = "1 / 1 - - - - - - -"; // 1 + 9 + 1 = 11
-                                                // 1
+            var frames = "1/ 1- -- -- -- -- -- -- -- --"; // 1 + 9 + 1 = 11 + 1 = 12
 
             var score = BowlingGame.Score(frames);
 
@@ -63,9 +63,7 @@ namespace KataTests
         [Fact]
         public void ten_twos_returns_20()
         {
-            var frames = "2 2 2 2 2 2 2 2 2 2";
-
-            var score = BowlingGame.Score(frames);
+            var score = BowlingGame.Score("2- 2- 2- 2- 2- 2- 2- 2- 2- 2-");
 
             Assert.Equal(20, score);
         }
@@ -73,15 +71,23 @@ namespace KataTests
         [Fact]
         public void ten_threes_returns_30()
         {
-            var frames = "3 3 3 3 3 3 3 3 3 3";
-
-            var score = BowlingGame.Score(frames);
+            var score = BowlingGame.Score("3- 3- 3- 3- 3- 3- 3- 3- 3- 3-");
 
             Assert.Equal(30, score);
         }
 
-        // Remove Total
-        // TODO: Spare '/' parsing - remainder
-        // TODO: Lookahead to next frame for spare / strike
+        [Theory]
+        [InlineData("12 3/ 42 4/ X 12 45 1/ X 42", 110)]
+        [InlineData("1- 2- 3- 4- 5- 6- 7- 8- 9- X 1/", 65)]
+        public void various_games_return_expected_scores(string scoreCard, int expected)
+        {
+            // FANKS: https://www.bowlinggenius.com
+            Assert.Equal(expected, BowlingGame.Score(scoreCard));
+        }
+
+        // TODO: Remove Total
+        // TODO: Spare on last = 1 bonus roll
+        // TODO: Strike on last = 2 bonus rolls
+        // TODO: Easier if 11th frame is fatter?
     }
 }
