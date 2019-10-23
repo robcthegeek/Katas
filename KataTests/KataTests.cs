@@ -50,6 +50,17 @@ namespace KataTests
         }
 
         [Fact]
+        public void first_frame_spare_adds_next_roll()
+        {
+            var frames = "1 / 1 - - - - - - -"; // 1 + 9 + 1 = 11
+                                                // 1
+
+            var score = BowlingGame.Score(frames);
+
+            Assert.Equal(12, score);
+        }
+
+        [Fact]
         public void ten_twos_returns_20()
         {
             var frames = "2 2 2 2 2 2 2 2 2 2";
@@ -69,7 +80,7 @@ namespace KataTests
             Assert.Equal(30, score);
         }
 
-        // TODO: Misses! - = ZEROOOO!
+        // Remove Total
         // TODO: Spare '/' parsing - remainder
         // TODO: Lookahead to next frame for spare / strike
     }

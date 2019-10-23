@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
+﻿using System.Collections.Generic;
 
 namespace Katas
 {
@@ -9,6 +6,8 @@ namespace Katas
     {
         public static int Score(string scoreCard)
         {
+            var game = new Game(scoreCard);
+
             var rolls = scoreCard.Split(' ');
 
             var frames = Parse(scoreCard);
@@ -19,13 +18,7 @@ namespace Katas
                 return 300;
             }
 
-            var result = 0;
-
-            result = frames
-                .Select(x => x.Total)
-                .Aggregate(0, (a, c) => a + c);
-
-            return result;
+            return game.Score;
         }
 
         private static List<Frame> Parse(string scoreCard)
@@ -42,12 +35,49 @@ namespace Katas
         }
     }
 
+    class Game
+    {
+        public List<Frame> Frames { get; } = new List<Frame>();
+
+        public int Score => CalculateScore();
+
+        public Game(string scoreCard)
+        {
+            var rolls = scoreCard.Split(' ');
+
+            for (int i = 0; i < rolls.Length; i += 2)
+            {
+                Frames.Add(new Frame(rolls[i], rolls[i + 1]));
+            }
+        }
+
+        int CalculateScore()
+        {
+            int result = 0;
+            for (int i = 0; i < Frames.Count; i++)
+            {
+                var current = Frames[i];
+
+                result += current.Total;
+
+                if (Frames[i].HasBonus)
+                {
+                    var next = Frames[i + 1];
+                    result += next.BonusValue(current.Bonus);
+                }
+            }
+
+            return result;
+        }
+    }
+
     class Frame
     {
         public int Roll1 { get; set; }
         public int Roll2 { get; set; }
         public int Total { get; set; }
         public Bonus Bonus { get; set; }
+        public bool HasBonus => Bonus != Bonus.None;
 
         public Frame(string score1, string score2)
         {
@@ -71,8 +101,20 @@ namespace Katas
 
             if (score2 == Specials.SPARE)
             {
-                Total = Roll1 + Roll2;
+                Roll2 = 10 - Roll1;
+                Total = 10;
                 Bonus = Bonus.Spare;
+            }
+        }
+
+        public int BonusValue(Bonus bonus)
+        {
+            switch (bonus)
+            {
+                case Bonus.Spare: return Roll1;
+                case Bonus.Strike: return Roll1 + Roll2;
+                default:
+                    return 0;
             }
         }
     }
