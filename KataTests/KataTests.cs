@@ -20,9 +20,57 @@ namespace KataTests
         */
 
         [Fact]
-        public void Tests_Are_Working()
+        public void ten_misses_returns_0()
         {
-            Assert.True(SUT.IsThere);
+            var frames = "- - - - - - - - - -";
+
+            var score = BowlingGame.Score(frames);
+
+            Assert.Equal(0, score);
         }
+
+        [Fact]
+        public void twelve_strikes_returns_300()
+        {
+            var frames = "X X X X X X X X X X X X";
+
+            var score = BowlingGame.Score(frames);
+
+            Assert.Equal(300, score);
+        }
+
+        [Fact]
+        public void ten_singles_returns_10()
+        {
+            var frames = "1 1 1 1 1 1 1 1 1 1";
+
+            var score = BowlingGame.Score(frames);
+
+            Assert.Equal(10, score);
+        }
+
+        [Fact]
+        public void ten_twos_returns_20()
+        {
+            var frames = "2 2 2 2 2 2 2 2 2 2";
+
+            var score = BowlingGame.Score(frames);
+
+            Assert.Equal(20, score);
+        }
+
+        [Fact]
+        public void ten_threes_returns_30()
+        {
+            var frames = "3 3 3 3 3 3 3 3 3 3";
+
+            var score = BowlingGame.Score(frames);
+
+            Assert.Equal(30, score);
+        }
+
+        // TODO: Misses! - = ZEROOOO!
+        // TODO: Spare '/' parsing - remainder
+        // TODO: Lookahead to next frame for spare / strike
     }
 }
