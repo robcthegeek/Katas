@@ -14,7 +14,7 @@ namespace TriWriteAStory
             // path?
             if (Path.HasExtension(args[0]))
             {
-                input = File.ReadAllText(args[0]);
+                input = File.Exists(args[0]) ? File.ReadAllText(args[0]) : "";
                 inputSource = $"file '{args[0]}'";
             }
             else
@@ -25,7 +25,7 @@ namespace TriWriteAStory
 
             if (string.IsNullOrWhiteSpace(input))
             {
-                throw new ApplicationException("No text given or path not found.");
+                throw new ApplicationException("No text given or file not found.");
             }
 
             var story = TrigramStory.From(Trigrams.Find(input));
