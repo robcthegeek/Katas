@@ -1,18 +1,15 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace Katas
 {
     public class Grid
     {
-        public HashSet<Coord> Coordinates { get; private set; } = new HashSet<Coord>();
-        public uint Width { get; private set; }
-        public uint Height { get; private set; }
+        public HashSet<Coord> Coordinates { get; } = new HashSet<Coord>();
+        public uint Width { get; }
+        public uint Height { get; }
 
-        private readonly Dictionary<Coord, HashSet<Coord>> _closest = new Dictionary<Coord, HashSet<Coord>>();
-        
         public Grid(params string[] coords)
         {
             uint maxX = 0;
@@ -31,34 +28,22 @@ namespace Katas
             Width = maxX;
             Height = maxY;
 
-            // determine closest coord for each point on map (there may be multiple)
-
-            for (uint y = 0; y < maxY; y++)
-            {
-                for (uint x = 0; x < maxX; x++)
-                {
-                    var closest = coords
-                        .Select(coord => new { Coord = coord, Distance = Distance.Manahattan(new Coord(x, y), coord)})
-                        .OrderBy(coord => coord.Distance)
-                        .ToList();
-                }
-            }
-
-            // every one that has a single item, add the total up to determine area (if on the edges, it's infinite)
+            // determine the coords that are "infinite" (on the edges) - these need to be immediately excluded from area calc.
         }
 
-        public Coord ClosestAt(Coord coord)
-        {
-            return new Coord("0,0");
-        }
+        public HashSet<Coord> ClosestAt(Coord point) =>
+            new HashSet<Coord>(Coordinates
+                .Select(coord => new { Coord = coord, Distance = Distance.Manahattan(point, coord) })
+                .OrderBy(coord => coord.Distance)
+                .GroupBy(g => g.Distance)
+                .Take(1)
+                .SelectMany(g => g.Select(_ => _.Coord))
+                .ToList());
     }
 
-    internal static class Distance
+    public static class Distance
     {
-        internal static uint Manahattan(Coord a, Coord b)
-        {
-            return 0;
-        }
+        public static int Manahattan(Coord a, Coord b) => Math.Abs((int)a.X - (int)b.X) + Math.Abs((int)a.Y - (int)b.Y);
     }
 
     public struct Coord
