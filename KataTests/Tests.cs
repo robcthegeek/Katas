@@ -38,6 +38,19 @@ namespace KataTests
         {
             Assert.Contains("8, 3", _sampleGrid.ClosestAt("7, 0"));
         }
+
+        [Fact]
+        public void can_get_infinites()
+        {
+            var infinites = _sampleGrid.Infinites;
+
+            Assert.Contains("1, 1", infinites);
+            Assert.Contains("1, 6", infinites);
+            Assert.Contains("8, 3", infinites);
+            Assert.DoesNotContain("3, 4", infinites);
+            Assert.DoesNotContain("5, 5", infinites);
+            Assert.Contains("8, 9", infinites);
+        }
     }
 
     public class DistanceTests
@@ -45,9 +58,9 @@ namespace KataTests
         [Fact]
         public void calculates_sample_distances_correctly()
         {
-            Assert.Equal(4, Distance.Manahattan(new Coord(8,3), new Coord(9,0)));
-            Assert.Equal(4, Distance.Manahattan(new Coord(8,9), new Coord(4,9)));
-            Assert.Equal(1, Distance.Manahattan(new Coord(1,6), new Coord(1,5)));
+            Assert.Equal(4, Manhattan.Distance(new Coord(8,3), new Coord(9,0)));
+            Assert.Equal(4, Manhattan.Distance(new Coord(8,9), new Coord(4,9)));
+            Assert.Equal(1, Manhattan.Distance(new Coord(1,6), new Coord(1,5)));
         }
     }
 }

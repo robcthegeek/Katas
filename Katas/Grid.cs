@@ -6,34 +6,43 @@ namespace Katas
 {
     public class Grid
     {
-        public HashSet<Coord> Coordinates { get; } = new HashSet<Coord>();
+        public HashSet<Coord> Coordinates { get; }
+        public HashSet<Coord> Infinites { get; }
+        public HashSet<Coord> Finites { get; }
+
         public uint Width { get; }
         public uint Height { get; }
 
         public Grid(params string[] coords)
-        {
-            uint maxX = 0;
-            uint maxY = 0;
-
+        { 
             // determine bounds (needed to find size of map)
-            foreach (var s in coords)
-            {
-                var coord = new Coord(s);
-                Coordinates.Add(coord);
+            Coordinates = new HashSet<Coord>(coords.Select(s => new Coord(s)));
+            Infinites = new HashSet<Coord>();
+            Finites = new HashSet<Coord>(Coordinates);
+            Width = Coordinates.Max(x => x.X);
+            Height = Coordinates.Max(x => x.Y);
 
-                if (coord.X > maxX) maxX = coord.X;
-                if (coord.Y > maxY) maxY = coord.Y;
+            bool OnEdge(uint x, uint y) => (x == 0 || x == Width - 1) || (y == 0 || y == Height - 1);
+
+            for (uint y = 0; y < Height; y++)
+            {
+                for (uint x = 0; x < Width; x++)
+                {
+                    // any Coordinates on the edges are 'infinite', others need to be summed.
+                    var closest = ClosestAt(new Coord(x, y));
+                    if (OnEdge(x, y) && closest.Count == 1)
+                    {
+                        Infinites.UnionWith(closest);
+                    }
+                }
             }
 
-            Width = maxX;
-            Height = maxY;
-
-            // determine the coords that are "infinite" (on the edges) - these need to be immediately excluded from area calc.
+            Finites.RemoveWhere(Infinites.Contains);
         }
 
         public HashSet<Coord> ClosestAt(Coord point) =>
             new HashSet<Coord>(Coordinates
-                .Select(coord => new { Coord = coord, Distance = Distance.Manahattan(point, coord) })
+                .Select(coord => new {Coord = coord, Distance = Manhattan.Distance(point, coord)})
                 .OrderBy(coord => coord.Distance)
                 .GroupBy(g => g.Distance)
                 .Take(1)
@@ -41,9 +50,9 @@ namespace Katas
                 .ToList());
     }
 
-    public static class Distance
+    public static class Manhattan
     {
-        public static int Manahattan(Coord a, Coord b) => Math.Abs((int)a.X - (int)b.X) + Math.Abs((int)a.Y - (int)b.Y);
+        public static int Distance(Coord a, Coord b) => Math.Abs((int)a.X - (int)b.X) + Math.Abs((int)a.Y - (int)b.Y);
     }
 
     public struct Coord
