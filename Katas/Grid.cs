@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Katas
@@ -9,6 +10,7 @@ namespace Katas
         public HashSet<Coord> Coordinates { get; }
         public HashSet<Coord> Infinites { get; }
         public HashSet<Coord> Finites { get; }
+        public Dictionary<Coord, uint> Areas { get; }
 
         public uint Width { get; }
         public uint Height { get; }
@@ -19,6 +21,7 @@ namespace Katas
             Coordinates = new HashSet<Coord>(coords.Select(s => new Coord(s)));
             Infinites = new HashSet<Coord>();
             Finites = new HashSet<Coord>(Coordinates);
+            Areas = new Dictionary<Coord, uint>(Coordinates.Select(_ => new KeyValuePair<Coord, uint>(_, 0)));
             Width = Coordinates.Max(x => x.X);
             Height = Coordinates.Max(x => x.Y);
 
@@ -34,20 +37,31 @@ namespace Katas
                     {
                         Infinites.UnionWith(closest);
                     }
+                    else if (closest.Count == 1)
+                    {
+                        closest
+                            .ToList()
+                            .ForEach(coord => Areas[coord] += 1);
+                    }
                 }
             }
 
             Finites.RemoveWhere(Infinites.Contains);
         }
 
+        public uint Answer => Areas
+            .OrderByDescending(kvp => kvp.Value)
+            .First()
+            .Value;
+
         public HashSet<Coord> ClosestAt(Coord point) =>
             new HashSet<Coord>(Coordinates
-                .Select(coord => new {Coord = coord, Distance = Manhattan.Distance(point, coord)})
-                .OrderBy(coord => coord.Distance)
-                .GroupBy(g => g.Distance)
-                .Take(1)
-                .SelectMany(g => g.Select(_ => _.Coord))
-                .ToList());
+                    .Select(coord => new {Coord = coord, Distance = Manhattan.Distance(point, coord)})
+                    .OrderBy(coord => coord.Distance)
+                    .GroupBy(g => g.Distance)
+                    .Take(1)
+                    .SelectMany(g => g.Select(_ => _.Coord))
+                    .ToList());
     }
 
     public static class Manhattan
@@ -55,6 +69,7 @@ namespace Katas
         public static int Distance(Coord a, Coord b) => Math.Abs((int)a.X - (int)b.X) + Math.Abs((int)a.Y - (int)b.Y);
     }
 
+    [DebuggerDisplay("[{X},{Y}]")]
     public struct Coord
     {
         public Coord(string coord)
