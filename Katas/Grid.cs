@@ -28,7 +28,7 @@ namespace Katas
             {
                 for (uint x = 0; x < Width; x++)
                 {
-                    // any Coordinates on the edges are 'infinite', others need to be summed.
+                    // any Coordinates on the edges, **with only a single 'closest'** are 'infinite', others need to be summed.
                     var closest = ClosestAt(new Coord(x, y));
                     if (OnEdge(x, y) && closest.Count == 1)
                     {
