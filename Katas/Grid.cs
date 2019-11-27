@@ -14,7 +14,7 @@ namespace Katas
         public uint Height { get; }
 
         public Grid(params string[] coords)
-        { 
+        {
             // determine bounds (needed to find size of map)
             Coordinates = new HashSet<Coord>(coords.Select(s => new Coord(s)));
             Infinites = new HashSet<Coord>();
@@ -22,11 +22,11 @@ namespace Katas
             Width = Coordinates.Max(x => x.X);
             Height = Coordinates.Max(x => x.Y);
 
-            bool OnEdge(uint x, uint y) => (x == 0 || x == Width - 1) || (y == 0 || y == Height - 1);
+            bool OnEdge(uint x, uint y) => (x == 0 || x == Width) || (y == 0 || y == Height);
 
-            for (uint y = 0; y < Height; y++)
+            for (uint y = 0; y <= Height; y++)
             {
-                for (uint x = 0; x < Width; x++)
+                for (uint x = 0; x <= Width; x++)
                 {
                     // any Coordinates on the edges, **with only a single 'closest'** are 'infinite', others need to be summed.
                     var closest = ClosestAt(new Coord(x, y));
