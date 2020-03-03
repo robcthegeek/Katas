@@ -4,12 +4,12 @@ using Xunit;
 
 namespace KataTests
 {
-    public class UnitTest1
+    public class CoinFlipperTests
     {
         [Fact]
         public void Tests_Are_Working()
         {
-            Assert.True(SUT.IsThere);
+            Assert.NotEqual("pending", CoinFlipper.Flip().winner);
         }
     }
 }
